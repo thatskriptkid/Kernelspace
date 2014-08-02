@@ -21,11 +21,17 @@ static struct file_operations fops = // function pointers on actions on our devi
 	.owner=THIS_MODULE, //prevent module unloading
 	
 };
-static void cdev_create(void);// create cdev structure
+static int cdev_create(void);// create cdev structure
 
-static void chrdev_init(void)
+static int chrdev_init(void)
 {
 	device_class=class_create(THIS_MODULE,DEV_NAME);// create a struct class structure 
+	
+	if (IS_ERR(device_class)) 
+	{
+		printk(KERN_WARNING "class_create() failed\n");
+		return 1;
+	}
 	
 	if(alloc_chrdev_region(&DEV_NUM,0,1,DEV_NAME)!=SUCCESS)
 		{
@@ -39,31 +45,35 @@ static void chrdev_init(void)
 			goto unreg;
 		}
 	
-	cdev_create();
+	if(cdev_create())
+		{
+			printk(KERN_WARNING "cdev_create() failed\n");
+			goto cdev_del;
+		}
 	
 	device=device_create(device_class,NULL,DEV_NUM,NULL,DEV_NAME);//creates a device and registers it with sysfs
 	
-		if (IS_ERR(device)) 
+	if (IS_ERR(device)) 
 		{
 			printk(KERN_WARNING "device_create() failed\n");
 			goto cdev_del;
 		}
 		
-		
+	chr_inode->i_cdev=my_cdev;//add cdev struct to our inode
+	
+	return 0;
+	
 	unreg:
 		unregister_chrdev_region(DEV_NUM,1);//free device number 
 		
 	cdev_del:
 		cdev_del(my_cdev);
+	return 1;
 	
 }
 
-static void cdev_create(void)
+static int cdev_create(void)
 {
-	if((my_cdev=cdev_alloc())==NULL)
-		printk(KERN_WARNING "cdev_alloc() failed\n");
-	
-	
 	cdev_init(my_cdev,&fops);
 	
 	my_cdev->ops=&fops;
@@ -72,17 +82,16 @@ static void cdev_create(void)
 	if((cdev_add(my_cdev,DEV_NUM,1))<0)
 		{
 			printk(KERN_WARNING "cdev_add() failed\n");
-			cdev_del(my_cdev);
+			return 1;
 		}
-	
+	else return 0;
 }
-
-
 
 static int __init finit(void)
 {
-	chrdev_init();
-
+	if(chrdev_init())
+		printk(KERN_WARNING "chrdev_init() failed\n");
+			
 	return 0;
 }
 
@@ -91,12 +100,12 @@ static void __exit fexit(void)
 	cdev_del(my_cdev);
 	unregister_chrdev_region(DEV_NUM,1);//free device number 
 	class_destroy(device_class); //destroys a struct class structure 
-	
 }
 
 module_init(finit);
 module_exit(fexit);
 
-MODULE_LICENSE("GPL");
+//traditionally in the end
+MODULE_LICENSE("GPL"); 
 MODULE_AUTHOR("thatskriptkid");
 MODULE_DESCRIPTION("module that create char device");

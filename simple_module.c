@@ -17,12 +17,11 @@
 #define SUCCESS 0
 
 static struct device *device;//the basic device structure
-static char   *DEV_NAME="my_char_device"; //name of our device
+static char  *DEV_NAME="my_char_device"; //name of our device
 static dev_t  DEV_NUM; // device MAJOR and minor numbers
 static struct cdev my_cdev; //need for inode structure, represent a character device within the kernel
 static struct class *device_class;
-static char   *kbuff; //for write method
-static size_t kbuff_size=10; //size of kbuff
+static char   kbuff[20]; //store user space data
 	
 static int     cdev_create(void);
 static int     chrdev_init(void);// create char device and add to the system
@@ -30,13 +29,15 @@ static void    chrdev_release(void);//release all resources related to our char 
 static int     chrdev_open(struct inode *inode,struct file *filp);
 static int     chrdev_close(struct inode *inode,struct file *filp);
 static ssize_t chrdev_write(struct file *filp,char __user *buff,size_t count,loff_t *offp);
+static ssize_t chrdev_read(struct file *filp,char __user *buff,size_t count,loff_t *offp);
 
 static struct file_operations fops = // function pointers on actions on our device
 {
 	.owner=THIS_MODULE, //prevent module unloading
 	.open=chrdev_open,
+	.read=chrdev_read,
 	.write=chrdev_write,
-	.release=chrdev_close
+	.release=chrdev_close,
 };
 
 static int __init finit(void) //main() analogue
@@ -108,29 +109,39 @@ static int chrdev_open(struct inode *inode,struct file *filp)
 	printk(KERN_WARNING "device_open() succesful\n");	
 	
 	inode->i_cdev=&my_cdev;//add cdev struct to our inode
-	filp->private_data=&my_cdev;
 	filp->f_op=&fops;
+	
+	memset(kbuff,0,20);// for security reasons
 	
 	return SUCCESS;
 }
 
 static ssize_t chrdev_write(struct file *filp,char __user *buff,size_t count,loff_t *offp)
 {
-	int huint;
-	char *tmp;
-
-	tmp=buff+count-1;
-	kbuff=kmalloc(1,GFP_KERNEL);
-	//memset(kbuff,0,10);// for security reasons
-	huint=copy_from_user(kbuff,tmp,1);
+	int missed_bytes;
 	
-	if (huint==0)
-	printk(KERN_WARNING "write() success!\n");
+	missed_bytes=copy_from_user(kbuff,buff,count);
+	
+	if (missed_bytes==0)
+		printk(KERN_WARNING "write() success!\n");
 	else 
-	printk(KERN_WARNING "write() failed %d\n",huint);
+		printk(KERN_WARNING "write() failed %d\n",missed_bytes);
+
+	return count;
+}
+
+static ssize_t chrdev_read(struct file *filp,char __user *buff,size_t count,loff_t *offp)
+{
+	int missed_bytes;
 	
-	printk(KERN_WARNING "write() failed %c\n",tmp[0]);
-	return 1;
+	missed_bytes=copy_to_user(buff,kbuff,count);
+	
+	if (missed_bytes==0)
+		printk(KERN_WARNING "read() success!\n");
+	else 
+		printk(KERN_WARNING "read() failed | %d bytes missed\n",missed_bytes);
+
+	return count;
 }
 
 static int chrdev_close(struct inode *inode,struct file *filp)
@@ -138,13 +149,13 @@ static int chrdev_close(struct inode *inode,struct file *filp)
 	/* There should be code for shutdown hardware device. 
 	 * Because we don't have physical device we do nothing here
 	*/
-
+	printk(KERN_ALERT "Device closed\n");
 	return SUCCESS;
 }
 
 static void chrdev_release(void)
 {
-	kfree(kbuff);
+	//kfree(kbuff); kbuff is static
 	device_destroy(device_class,DEV_NUM);	//remove a device that was created with device_create
 	cdev_del(&my_cdev);
 	unregister_chrdev_region(DEV_NUM,1); //free device number

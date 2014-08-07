@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
- #include <fcntl.h>
+#include <unistd.h>
+#include <fcntl.h>
 
-int main(){
-    FILE *fd;
-    fd=fopen("/dev/my_char_device","r+");
-
-    if(fd==NULL)
-    printf("fail\n");
+int main()
+{
+    char *buff="Hello my module!";
+    
+    int fd;
+    
+    fd=open("/dev/my_char_device",O_RDWR);
+    
+    printf("bytes writed = %d",(write(fd,buff,strlen(buff))));
+	
+	
     return 0;
     }

@@ -14,7 +14,7 @@ static struct request_queue  *queue;
 static spinlock_t 			 lock; 
 
 static int gendisk_create(void);
-static void my_request(request_queue_t *queue); /*This function is called whenever the kernel believes it is time 
+static void my_request(struct request_queue *queue); /*This function is called whenever the kernel believes it is time 
 												 *for your driver to process
 												 *some reads, writes, or other operations on the device.
 												*/
@@ -24,7 +24,7 @@ static struct block_device_operations file_op =
 	.owner=THIS_MODULE,
 	.open=NULL,
 	.release=NULL,
-	.request=my_request,
+	
 };
 
 static int block_dev_init(void)
@@ -36,20 +36,21 @@ static int block_dev_init(void)
 		return 1;
 	}
 	
-	
-	if(gendisk_create()) {
-		printk(KERN_WARNING "gendisk_create() failed\n"); 
-		goto unregister;
-	}
-	
-	/*
 	queue=blk_init_queue(my_request,&lock);  //prepare a request queue for use with a block device 
 	
 	if(queue==NULL) {
 		printk(KERN_WARNING "blk_init_queue() failed\n");
-		goto free_gendisk;
+		goto unregister;
 	}
-	*/
+	
+	
+	if(gendisk_create()) {
+		printk(KERN_WARNING "gendisk_create() failed\n"); 
+		goto free_queue;
+	}
+	
+	
+	
 	
 	return SUCCESS;
 	
@@ -57,6 +58,8 @@ static int block_dev_init(void)
 		unregister_blkdev(major_number,device_name);
 	free_gendisk:
 		del_gendisk(device);
+	free_queue:
+		blk_cleanup_queue(queue);
 		
 	return 1;	
 	
@@ -85,8 +88,24 @@ static int gendisk_create(void)
 	return SUCCESS;
 }
 
-void my_request(request_queue_t *queue)
+void my_request(struct request_queue *queue)
 {
+	struct request *req;
+	
+	while((req=blk_fetch_request(queue))!=NULL) {
+		
+		 /*tells us whether we are looking at a 
+		  *filesystem request — one that moves blocks of data.
+		  */
+		  
+		if (req->cmd_type!=REQ_TYPE_FS) {
+			printk(KERN_INFO "Skip non-fs request\n");
+			blk_end_request(req,SUCCESS,10);
+			continue;
+		}
+		
+		
+	}
 }
 static int __init dev_init(void)
 {
@@ -98,7 +117,7 @@ static int __init dev_init(void)
 
 static void __exit dev_exit(void)
 {
-	blk_cleanup_queue(queue);;
+	blk_cleanup_queue(queue);
 	del_gendisk(device);
 	unregister_blkdev(major_number,device_name);
 	

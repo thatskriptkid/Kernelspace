@@ -6,18 +6,29 @@
 #include <linux/spinlock.h> // spin_lock_init()
 
 #define SUCCESS 0
+#define KERNEL_SECTOR_SIZE 512
 
-static struct gendisk        *device;                        //kernel's representation of individual device 
+static struct gendisk        *gd;                        //kernel's representation of individual device 
 static int    	  			 major_number;
 static char   	 			 *device_name="my_block_device";
 static struct request_queue  *queue;
 static spinlock_t 			 lock; 
+static int                   nsectors = 1024;                 /* How big the drive is */
+static int					 hardsect_size = 512;
 
-static int gendisk_create(void);
+static struct my_block_device {
+	unsigned long size;
+	spinlock_t lock;
+	u8 *data;
+	struct gendisk *gd;
+} device;
+
+
+static int  gendisk_create(void);
 static void my_request(struct request_queue *queue); /*This function is called whenever the kernel believes it is time 
-												 *for your driver to process
-												 *some reads, writes, or other operations on the device.
-												*/
+												      *for your driver to process
+												      *some reads, writes, or other operations on the device.
+												      */
 
 static struct block_device_operations file_op = 
 {
@@ -35,6 +46,9 @@ static int block_dev_init(void)
 		printk(KERN_WARNING "register_blkdev() failed\n");
 		return 1;
 	}
+	else printk(KERN_WARNING "register_blkdev() success\n");
+	
+	spin_lock_init(&lock);
 	
 	queue=blk_init_queue(my_request,&lock);  //prepare a request queue for use with a block device 
 	
@@ -42,12 +56,13 @@ static int block_dev_init(void)
 		printk(KERN_WARNING "blk_init_queue() failed\n");
 		goto unregister;
 	}
-	
+	else printk(KERN_WARNING "blk_init_queue() success\n"); 
 	
 	if(gendisk_create()) {
 		printk(KERN_WARNING "gendisk_create() failed\n"); 
 		goto free_queue;
 	}
+	else printk(KERN_WARNING "gendisk_create() success\n"); 
 	
 	
 	
@@ -83,8 +98,6 @@ static int gendisk_create(void)
 	device->fops=&file_op;
 	device->queue=queue;
 	
-	spin_lock_init(&lock);
-	
 	return SUCCESS;
 }
 
@@ -100,11 +113,12 @@ void my_request(struct request_queue *queue)
 		  
 		if (req->cmd_type!=REQ_TYPE_FS) {
 			printk(KERN_INFO "Skip non-fs request\n");
-			blk_end_request(req,SUCCESS,10);
+			blk_end_request(req,-1,10); 
 			continue;
 		}
 		
-		
+		my_block_device_transfer(
+		blk_end_request(req,SUCCESS,10);
 	}
 }
 static int __init dev_init(void)
@@ -117,8 +131,9 @@ static int __init dev_init(void)
 
 static void __exit dev_exit(void)
 {
-	blk_cleanup_queue(queue);
 	del_gendisk(device);
+	blk_cleanup_queue(queue);
+	
 	unregister_blkdev(major_number,device_name);
 	
 }

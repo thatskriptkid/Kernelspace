@@ -508,12 +508,12 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
     else
 #endif
     ctx->rk = RK = ctx->buf;
-
+/* 17_08
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
     if( aesni_supports( POLARSSL_AESNI_AES ) )
         return( aesni_setkey_enc( (unsigned char *) ctx->rk, key, keysize ) );
 #endif
-
+*/
     for( i = 0; i < ( keysize >> 5 ); i++ )
     {
         GET_UINT32_LE( RK[i], key, i << 2 );
@@ -613,7 +613,7 @@ int aes_setkey_dec( aes_context *ctx, const unsigned char *key,
         goto exit;
 
     ctx->nr = cty.nr;
-
+/* //17_08
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
     if( aesni_supports( POLARSSL_AESNI_AES ) )
     {
@@ -622,6 +622,7 @@ int aes_setkey_dec( aes_context *ctx, const unsigned char *key,
         goto exit;
     }
 #endif
+*/
 
     SK = cty.rk + cty.nr * 4;
 
@@ -708,12 +709,12 @@ int aes_crypt_ecb( aes_context *ctx,
 {
     int i;
     uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
-
+/* 17_08
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
     if( aesni_supports( POLARSSL_AESNI_AES ) )
         return( aesni_crypt_ecb( ctx, mode, input, output ) );
 #endif
-
+*/
 #if defined(POLARSSL_PADLOCK_C) && defined(POLARSSL_HAVE_X86)
     if( aes_padlock_ace )
     {

@@ -1,4 +1,4 @@
-obj-m=crypt.o
+obj-m+=crypt.o
 
 ccflags-y := -I$(src)/include -g3 -Wall -Werror
 

@@ -84,6 +84,7 @@ static int gendisk_create(void)
 	
 	device->fops=&file_op;
 	device->queue=queue;
+	add_disk(device);
 	
 	return SUCCESS;
 }
@@ -103,8 +104,9 @@ void my_request(struct request_queue *queue)
 			blk_end_request(req,-1,10); 
 			continue;
 		}
-		else
-			printk(KERN_WARNING "there is request!\n");
+		
+		printk(KERN_WARNING "there is request!\n");
+			
 		blk_end_request(req,SUCCESS,10);
 	}
 }

@@ -36,10 +36,10 @@
 #include <linux/string.h> //17_08 add linux/
 
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
-#include <basetsd.h>
+/*#include <basetsd.h>
 typedef UINT32 uint32_t;
 #else
-//#include <inttypes.h>
+#include <inttypes.h>  20_08*/ 
 #endif
 
 /* padlock.c and aesni.c rely on these values! */

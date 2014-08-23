@@ -27,7 +27,7 @@
 #ifndef POLARSSL_ENTROPY_POLL_H
 #define POLARSSL_ENTROPY_POLL_H
 
-#include <string.h>
+#include <linux/string.h>
 
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"

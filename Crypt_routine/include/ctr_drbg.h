@@ -27,7 +27,7 @@
 #ifndef POLARSSL_CTR_DRBG_H
 #define POLARSSL_CTR_DRBG_H
 
-#include <string.h>
+#include <linux/string.h> 
 
 #include "aes.h"
 

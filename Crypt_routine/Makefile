@@ -1,8 +1,8 @@
-obj-m+=crypt.o
+obj-m := cr.o
 
-ccflags-y := -I$(src)/include -g3 -Wall -Werror
+ccflags-y := -I$(src)/include -g3 -Wall 
 
-crypt-y := lib/aes.o 
+cr-y := crypt.o lib/aes.o lib/ctr_drbg.o lib/entropy.o lib/sha256.o lib/sha512.o  
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

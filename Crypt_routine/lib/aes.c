@@ -29,25 +29,32 @@
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
 
-#include <linux/kernel.h>  // 17_08 tsk
+#include <linux/kernel.h>
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "config.h" //17_08 delete polarssl/ | thatskriptkid
+#include "config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
 #if defined(POLARSSL_AES_C)
 
-#include "aes.h" //17_08 delete polarssl/ | thatskriptkid
+#include "aes.h"
+/*
 #if defined(POLARSSL_PADLOCK_C)
-#include "padlock.h" //17_08 delete polarssl/ thatskriptkid
+#include "padlock.h"
 #endif
+
 #if defined(POLARSSL_AESNI_C)
-#include "aesni.h" //17_08 delete polarssl/ thatskriptkid
+#include "aesni.h"
 #endif
 
-
+#if defined(POLARSSL_PLATFORM_C)
+#include "platform.h"
+#else
+#define polarssl_printf printf
+#endif
+*/
 #if !defined(POLARSSL_AES_ALT)
 
 /* Implementation that should never be optimized out by the compiler */
@@ -508,12 +515,12 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
     else
 #endif
     ctx->rk = RK = ctx->buf;
-/* 17_08
+
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
     if( aesni_supports( POLARSSL_AESNI_AES ) )
         return( aesni_setkey_enc( (unsigned char *) ctx->rk, key, keysize ) );
 #endif
-*/
+
     for( i = 0; i < ( keysize >> 5 ); i++ )
     {
         GET_UINT32_LE( RK[i], key, i << 2 );
@@ -582,7 +589,7 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
             break;
     }
 
-    return( 0 );
+    return 0;
 }
 
 /*
@@ -613,7 +620,7 @@ int aes_setkey_dec( aes_context *ctx, const unsigned char *key,
         goto exit;
 
     ctx->nr = cty.nr;
-/* //17_08
+
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
     if( aesni_supports( POLARSSL_AESNI_AES ) )
     {
@@ -622,7 +629,6 @@ int aes_setkey_dec( aes_context *ctx, const unsigned char *key,
         goto exit;
     }
 #endif
-*/
 
     SK = cty.rk + cty.nr * 4;
 
@@ -709,12 +715,12 @@ int aes_crypt_ecb( aes_context *ctx,
 {
     int i;
     uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
-/* 17_08
+
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
     if( aesni_supports( POLARSSL_AESNI_AES ) )
         return( aesni_crypt_ecb( ctx, mode, input, output ) );
 #endif
-*/
+
 #if defined(POLARSSL_PADLOCK_C) && defined(POLARSSL_HAVE_X86)
     if( aes_padlock_ace )
     {
@@ -927,7 +933,7 @@ int aes_crypt_cfb128( aes_context *ctx,
 /*
  * AES-CFB8 buffer encryption/decryption
  */
-//#include <stdio.h> // 17_08 thatskriptkid 
+//#include <stdio.h>
 int aes_crypt_cfb8( aes_context *ctx,
                        int mode,
                        size_t length,
@@ -998,7 +1004,7 @@ int aes_crypt_ctr( aes_context *ctx,
 
 #if defined(POLARSSL_SELF_TEST)
 
-//#include <stdio.h> // 17_08 thatskriptkid
+//#include <stdio.h>
 
 /*
  * AES test vectors from:
@@ -1208,11 +1214,12 @@ int aes_self_test( int verbose )
     {
         u = i >> 1;
         v = i  & 1;
-
+	
         if( verbose != 0 )
-            printk(KERN_INFO "  AES-ECB-%3d (%s): ", 128 + u * 64,
+            printk(KERN_WARNING "  AES-ECB-%3d (%s): ", 128 + u * 64,
+    
                              ( v == AES_DECRYPT ) ? "dec" : "enc" );
-
+     
         memset( buf, 0, 16 );
 
         if( v == AES_DECRYPT )
@@ -1253,7 +1260,7 @@ int aes_self_test( int verbose )
     }
 
     if( verbose != 0 )
-        printk(KERN_INFO "\n" );
+        printk(KERN_WARNING "\n" );
 
 #if defined(POLARSSL_CIPHER_MODE_CBC)
     /*
@@ -1265,7 +1272,7 @@ int aes_self_test( int verbose )
         v = i  & 1;
 
         if( verbose != 0 )
-            printk(KERN_INFO "  AES-CBC-%3d (%s): ", 128 + u * 64,
+            printk(KERN_WARNING "  AES-CBC-%3d (%s): ", 128 + u * 64,
                              ( v == AES_DECRYPT ) ? "dec" : "enc" );
 
         memset( iv , 0, 16 );
@@ -1318,7 +1325,7 @@ int aes_self_test( int verbose )
     }
 
     if( verbose != 0 )
-        printk(KERN_INFO "\n" );
+        printk(KERN_WARNING "\n" );
 #endif /* POLARSSL_CIPHER_MODE_CBC */
 
 #if defined(POLARSSL_CIPHER_MODE_CFB)
@@ -1374,7 +1381,7 @@ int aes_self_test( int verbose )
     }
 
     if( verbose != 0 )
-        printk(KERN_INFO "\n" );
+        printk(KERN_WARNING "\n" );
 #endif /* POLARSSL_CIPHER_MODE_CFB */
 
 #if defined(POLARSSL_CIPHER_MODE_CTR)
@@ -1387,7 +1394,7 @@ int aes_self_test( int verbose )
         v = i  & 1;
 
         if( verbose != 0 )
-            printk(KERN_INFO "  AES-CTR-128 (%s): ",
+            printk(KERN_WARNING "  AES-CTR-128 (%s): ",
                              ( v == AES_DECRYPT ) ? "dec" : "enc" );
 
         memcpy( nonce_counter, aes_test_ctr_nonce_counter[u], 16 );
@@ -1436,7 +1443,7 @@ int aes_self_test( int verbose )
     }
 
     if( verbose != 0 )
-        printk(KERN_INFO "\n" );
+        printk(KERN_WARNING "\n" );
 #endif /* POLARSSL_CIPHER_MODE_CTR */
 
     ret = 0;

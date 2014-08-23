@@ -33,7 +33,7 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#include <stdio.h>
+//#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,7 +48,7 @@ extern "C" {
  */
 
 #if !defined(POLARSSL_PLATFORM_NO_STD_FUNCTIONS)
-#include <stdlib.h>
+//#include <stdlib.h>
 #if !defined(POLARSSL_PLATFORM_STD_PRINTF)
 #define POLARSSL_PLATFORM_STD_PRINTF   printf /**< Default printf to use  */
 #endif

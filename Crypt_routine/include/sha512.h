@@ -33,13 +33,13 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#include <string.h>
+#include <linux/string.h> //20_08 add linux/
 
 #if defined(_MSC_VER) || defined(__WATCOMC__)
   #define UL64(x) x##ui64
   typedef unsigned __int64 uint64_t;
 #else
-  #include <inttypes.h>
+ // #include <inttypes.h> 20_08 commented
   #define UL64(x) x##ULL
 #endif
 

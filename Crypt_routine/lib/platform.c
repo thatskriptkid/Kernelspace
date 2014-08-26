@@ -100,13 +100,15 @@ static int platform_fprintf_uninit( FILE *stream, const char *format, ... )
     ((void) format);
     return( 0 );
 }
+* 21_08
 */
 #define POLARSSL_PLATFORM_STD_FPRINTF   platform_fprintf_uninit
 #endif /* !POLARSSL_PLATFORM_STD_FPRINTF */
-
+/*
 int (*polarssl_fprintf)( FILE *, const char *, ... ) =
                                         POLARSSL_PLATFORM_STD_FPRINTF;
-
+21_08
+*/
 int platform_set_fprintf( int (*fprintf_func)( FILE *, const char *, ... ) )
 {
     polarssl_fprintf = fprintf_func;

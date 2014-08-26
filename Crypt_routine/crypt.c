@@ -14,7 +14,7 @@
 
 #define SUCCESS 0
 
-//static aes_context      *aes_ctx;
+static aes_context      *aes_ctx;
 static ctr_drbg_context ctr_drbg;
 static entropy_context  entropy;
 static unsigned char    key[32]; // hold 256-bits key
@@ -58,7 +58,13 @@ static int AES_enc(void)
 static int AES_genkey(void)
 {
 	entropy_init(&entropy);
-	
+	/*
+	if(!(entropy_func(&entropy,output,128)))
+		printk(KERN_WARNING "entropy_func failed\n");
+	else
+		printk(KERN_WARNING "entropy_func success\n");
+	*/
+		//25_08 - TRY TO PROVIDE BETER PERS
 	if((ret=ctr_drbg_init(&ctr_drbg,entropy_func,&entropy,(unsigned char*) pers,strlen(pers)))!=0) {
 		printk(KERN_INFO "ctr_drbg_init() failed!%d\n",ret);
 		return 1;

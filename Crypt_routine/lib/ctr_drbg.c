@@ -272,15 +272,18 @@ int ctr_drbg_reseed( ctr_drbg_context *ctx,
     if( ctx->entropy_len + len > CTR_DRBG_MAX_SEED_INPUT )
         return( POLARSSL_ERR_CTR_DRBG_INPUT_TOO_BIG );
 	
+	/* ctx->entropy_len + len = 68 */ 
 	
 	memset( seed, 0, CTR_DRBG_MAX_SEED_INPUT );
 
     /*
      * Gather entropy_len bytes of entropy to seed state
      */
+     
     if( 0 != ctx->f_entropy( ctx->p_entropy, seed,
-                             ctx->entropy_len ) ) /* 21_08 error here */
+                             ctx->entropy_len ) ) /* 21_08 error here | seed len is 0*/
     {
+		
 		return( POLARSSL_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED );
     }
 	

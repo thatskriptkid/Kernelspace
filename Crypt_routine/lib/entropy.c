@@ -35,9 +35,11 @@
 #include "entropy.h"
 //#include "entropy_poll.h"
 
+/*
 #if defined(POLARSSL_FS_IO)
-//#include <stdio.h>
+#include <stdio.h>
 #endif
+*/
 
 #if defined(POLARSSL_HAVEGE_C)
 #include "havege.h"
@@ -53,10 +55,12 @@ static void polarssl_zeroize( void *v, size_t n ) {
 void entropy_init( entropy_context *ctx )
 {
     memset( ctx, 0, sizeof(entropy_context) );
-
+/*
 #if defined(POLARSSL_THREADING_C)
     polarssl_mutex_init( &ctx->mutex );
 #endif
+26_08
+*/
 
 #if defined(POLARSSL_ENTROPY_SHA512_ACCUMULATOR)
     sha512_starts( &ctx->accumulator, 0 );
@@ -66,25 +70,27 @@ void entropy_init( entropy_context *ctx )
 #if defined(POLARSSL_HAVEGE_C)
     havege_init( &ctx->havege_data );
 #endif
-
+/*
 #if !defined(POLARSSL_NO_DEFAULT_ENTROPY_SOURCES)
-/*#if !defined(POLARSSL_NO_PLATFORM_ENTROPY)
+#if !defined(POLARSSL_NO_PLATFORM_ENTROPY)
     entropy_add_source( ctx, platform_entropy_poll, NULL,
                         ENTROPY_MIN_PLATFORM ); 
-                        20_08 
+                        
 #endif
+26_08
 */
-
-/*#if defined(POLARSSL_TIMING_C)
+/*
+#if defined(POLARSSL_TIMING_C)
     entropy_add_source( ctx, hardclock_poll, NULL, ENTROPY_MIN_HARDCLOCK );
 #endif
-20_08 */
+26_08
+*/
 
 #if defined(POLARSSL_HAVEGE_C)
     entropy_add_source( ctx, havege_poll, &ctx->havege_data,
                         ENTROPY_MIN_HAVEGE );
 #endif
-#endif /* POLARSSL_NO_DEFAULT_ENTROPY_SOURCES */
+
 }
 
 void entropy_free( entropy_context *ctx )
@@ -103,11 +109,13 @@ int entropy_add_source( entropy_context *ctx,
                         size_t threshold )
 {
     int index, ret = 0;
-
+/*
 #if defined(POLARSSL_THREADING_C)
     if( ( ret = polarssl_mutex_lock( &ctx->mutex ) ) != 0 )
         return( ret );
 #endif
+26_08
+*/
 
     index = ctx->source_count;
     if( index >= ENTROPY_MAX_SOURCES )
@@ -322,11 +330,11 @@ int entropy_func( void *data, unsigned char *output, size_t len )
     ret = 0;
 
 exit:
-#if defined(POLARSSL_THREADING_C)
+/*#if defined(POLARSSL_THREADING_C)
     if( polarssl_mutex_unlock( &ctx->mutex ) != 0 )
         return( POLARSSL_ERR_THREADING_MUTEX_ERROR );
 #endif
-
+*/
     return( ret );
 }
 /*

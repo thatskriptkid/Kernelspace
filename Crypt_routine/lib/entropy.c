@@ -33,8 +33,8 @@
 #if defined(POLARSSL_ENTROPY_C)
 
 #include "entropy.h"
-//#include "entropy_poll.h"
-
+#include "entropy_poll.h"
+#endif
 /*
 #if defined(POLARSSL_FS_IO)
 #include <stdio.h>
@@ -70,22 +70,19 @@ void entropy_init( entropy_context *ctx )
 #if defined(POLARSSL_HAVEGE_C)
     havege_init( &ctx->havege_data );
 #endif
-/*
+
 #if !defined(POLARSSL_NO_DEFAULT_ENTROPY_SOURCES)
 #if !defined(POLARSSL_NO_PLATFORM_ENTROPY)
     entropy_add_source( ctx, platform_entropy_poll, NULL,
                         ENTROPY_MIN_PLATFORM ); 
                         
 #endif
-26_08
-*/
+
 /*
 #if defined(POLARSSL_TIMING_C)
     entropy_add_source( ctx, hardclock_poll, NULL, ENTROPY_MIN_HARDCLOCK );
 #endif
-26_08
 */
-
 #if defined(POLARSSL_HAVEGE_C)
     entropy_add_source( ctx, havege_poll, &ctx->havege_data,
                         ENTROPY_MIN_HAVEGE );

@@ -283,7 +283,7 @@ int ctr_drbg_reseed( ctr_drbg_context *ctx,
     if( 0 != ctx->f_entropy( ctx->p_entropy, seed,
                              ctx->entropy_len ) ) /* 21_08 error here | seed len is 0*/
     {
-		
+		printk(KERN_WARNING " POLARSSL_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED\n");
 		return( POLARSSL_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED );
     }
 	

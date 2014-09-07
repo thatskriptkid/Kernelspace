@@ -76,7 +76,7 @@ static int AES_genkey(void)
 		printk(KERN_INFO "ctr_drbg_random() failed\n");
 		return 1;
 	}
-	else printk(KERN_INFO "succes!\n");
+	else printk(KERN_INFO "ctr_drbg_random succes!\n");
 	*/
 	return SUCCESS;
 }

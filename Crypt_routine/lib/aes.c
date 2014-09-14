@@ -29,8 +29,6 @@
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
 
-#include <linux/kernel.h>
-
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
 #else
@@ -40,21 +38,19 @@
 #if defined(POLARSSL_AES_C)
 
 #include "aes.h"
-/*
 #if defined(POLARSSL_PADLOCK_C)
 #include "padlock.h"
 #endif
-
 #if defined(POLARSSL_AESNI_C)
 #include "aesni.h"
 #endif
 
 #if defined(POLARSSL_PLATFORM_C)
 #include "platform.h"
-#else
-#define polarssl_printf printf
+/*#else
+#define polarssl_printf klog*/
 #endif
-*/
+
 #if !defined(POLARSSL_AES_ALT)
 
 /* Implementation that should never be optimized out by the compiler */
@@ -589,7 +585,7 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
             break;
     }
 
-    return 0;
+    return( 0 );
 }
 
 /*
@@ -1214,12 +1210,11 @@ int aes_self_test( int verbose )
     {
         u = i >> 1;
         v = i  & 1;
-	
+
         if( verbose != 0 )
-            printk(KERN_WARNING "  AES-ECB-%3d (%s): ", 128 + u * 64,
-    
-                             ( v == AES_DECRYPT ) ? "dec" : "enc" );
-     
+            klog(KL_DBG, "  AES-ECB-%3d (%s): ", 128 + u * 64,
+                             (v==AES_DECRYPT)?"dec":"enc");
+
         memset( buf, 0, 16 );
 
         if( v == AES_DECRYPT )
@@ -1232,7 +1227,7 @@ int aes_self_test( int verbose )
             if( memcmp( buf, aes_test_ecb_dec[u], 16 ) != 0 )
             {
                 if( verbose != 0 )
-                    printk(KERN_WARNING "failed\n" );
+                    klog(KL_DBG, "failed\n" );
 
                 ret = 1;
                 goto exit;
@@ -1248,7 +1243,7 @@ int aes_self_test( int verbose )
             if( memcmp( buf, aes_test_ecb_enc[u], 16 ) != 0 )
             {
                 if( verbose != 0 )
-                    printk(KERN_WARNING "failed\n" );
+                    klog(KL_DBG, "failed\n" );
 
                 ret = 1;
                 goto exit;
@@ -1256,11 +1251,11 @@ int aes_self_test( int verbose )
         }
 
         if( verbose != 0 )
-            printk(KERN_WARNING "passed\n" );
+            klog(KL_DBG, "passed\n" );
     }
 
     if( verbose != 0 )
-        printk(KERN_WARNING "\n" );
+        klog(KL_DBG, "\n" );
 
 #if defined(POLARSSL_CIPHER_MODE_CBC)
     /*
@@ -1272,7 +1267,7 @@ int aes_self_test( int verbose )
         v = i  & 1;
 
         if( verbose != 0 )
-            printk(KERN_WARNING "  AES-CBC-%3d (%s): ", 128 + u * 64,
+            klog(KL_DBG, "  AES-CBC-%3d (%s): ", 128 + u * 64,
                              ( v == AES_DECRYPT ) ? "dec" : "enc" );
 
         memset( iv , 0, 16 );
@@ -1289,7 +1284,7 @@ int aes_self_test( int verbose )
             if( memcmp( buf, aes_test_cbc_dec[u], 16 ) != 0 )
             {
                 if( verbose != 0 )
-                    printk(KERN_WARNING "failed\n" );
+                    klog(KL_DBG, "failed\n" );
 
                 ret = 1;
                 goto exit;
@@ -1313,7 +1308,7 @@ int aes_self_test( int verbose )
             if( memcmp( prv, aes_test_cbc_enc[u], 16 ) != 0 )
             {
                 if( verbose != 0 )
-                    printk(KERN_WARNING "failed\n" );
+                    klog(KL_DBG, "failed\n" );
 
                 ret = 1;
                 goto exit;
@@ -1321,11 +1316,11 @@ int aes_self_test( int verbose )
         }
 
         if( verbose != 0 )
-            printk(KERN_WARNING "passed\n" );
+            klog(KL_DBG, "passed\n" );
     }
 
     if( verbose != 0 )
-        printk(KERN_WARNING "\n" );
+        klog(KL_DBG, "\n" );
 #endif /* POLARSSL_CIPHER_MODE_CBC */
 
 #if defined(POLARSSL_CIPHER_MODE_CFB)
@@ -1338,7 +1333,7 @@ int aes_self_test( int verbose )
         v = i  & 1;
 
         if( verbose != 0 )
-            printk(KERN_WARNING "  AES-CFB128-%3d (%s): ", 128 + u * 64,
+            klog(KL_DBG, "  AES-CFB128-%3d (%s): ", 128 + u * 64,
                              ( v == AES_DECRYPT ) ? "dec" : "enc" );
 
         memcpy( iv,  aes_test_cfb128_iv, 16 );
@@ -1355,7 +1350,7 @@ int aes_self_test( int verbose )
             if( memcmp( buf, aes_test_cfb128_pt, 64 ) != 0 )
             {
                 if( verbose != 0 )
-                    printk(KERN_WARNING "failed\n" );
+                    klog(KL_DBG, "failed\n" );
 
                 ret = 1;
                 goto exit;
@@ -1369,7 +1364,7 @@ int aes_self_test( int verbose )
             if( memcmp( buf, aes_test_cfb128_ct[u], 64 ) != 0 )
             {
                 if( verbose != 0 )
-                    printk(KERN_WARNING "failed\n" );
+                    klog(KL_DBG, "failed\n" );
 
                 ret = 1;
                 goto exit;
@@ -1377,11 +1372,11 @@ int aes_self_test( int verbose )
         }
 
         if( verbose != 0 )
-            printk(KERN_WARNING "passed\n" );
+            klog(KL_DBG, "passed\n" );
     }
 
     if( verbose != 0 )
-        printk(KERN_WARNING "\n" );
+        klog(KL_DBG, "\n" );
 #endif /* POLARSSL_CIPHER_MODE_CFB */
 
 #if defined(POLARSSL_CIPHER_MODE_CTR)
@@ -1394,7 +1389,7 @@ int aes_self_test( int verbose )
         v = i  & 1;
 
         if( verbose != 0 )
-            printk(KERN_WARNING "  AES-CTR-128 (%s): ",
+            klog(KL_DBG, "  AES-CTR-128 (%s): ",
                              ( v == AES_DECRYPT ) ? "dec" : "enc" );
 
         memcpy( nonce_counter, aes_test_ctr_nonce_counter[u], 16 );
@@ -1414,7 +1409,7 @@ int aes_self_test( int verbose )
             if( memcmp( buf, aes_test_ctr_pt[u], len ) != 0 )
             {
                 if( verbose != 0 )
-                    printk(KERN_WARNING "failed\n" );
+                    klog(KL_DBG, "failed\n" );
 
                 ret = 1;
                 goto exit;
@@ -1431,7 +1426,7 @@ int aes_self_test( int verbose )
             if( memcmp( buf, aes_test_ctr_ct[u], len ) != 0 )
             {
                 if( verbose != 0 )
-                    printk(KERN_WARNING "failed\n" );
+                    klog(KL_DBG, "failed\n" );
 
                 ret = 1;
                 goto exit;
@@ -1439,11 +1434,11 @@ int aes_self_test( int verbose )
         }
 
         if( verbose != 0 )
-            printk(KERN_WARNING "passed\n" );
+            klog(KL_DBG, "passed\n" );
     }
 
     if( verbose != 0 )
-        printk(KERN_WARNING "\n" );
+        klog(KL_DBG, "\n" );
 #endif /* POLARSSL_CIPHER_MODE_CTR */
 
     ret = 0;

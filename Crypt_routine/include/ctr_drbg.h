@@ -27,8 +27,8 @@
 #ifndef POLARSSL_CTR_DRBG_H
 #define POLARSSL_CTR_DRBG_H
 
-#include <linux/string.h> 
-
+/*#include <string.h> tsk 10.09 commented */
+#include "config.h" /* tsk | 10.09 | added */
 #include "aes.h"
 
 #define POLARSSL_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED        -0x0034  /**< The entropy source failed. */

@@ -27,7 +27,7 @@
 #ifndef POLARSSL_HAVEGE_H
 #define POLARSSL_HAVEGE_H
 
-#include <linux/string.h>
+#include <string.h>
 
 #define COLLECT_SIZE 1024
 

@@ -27,7 +27,7 @@
 #ifndef POLARSSL_ENTROPY_POLL_H
 #define POLARSSL_ENTROPY_POLL_H
 
-#include <linux/string.h>
+/*#include <string.h> tsk | 10.09 | commented */
 
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
@@ -53,25 +53,27 @@ extern "C" {
 int platform_entropy_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen );
 #endif
-
+/*
 #if defined(POLARSSL_HAVEGE_C)
-/**
+/*
  * \brief           HAVEGE based entropy poll callback
  *
  * Requires an HAVEGE state as its data pointer.
  */
-int havege_poll( void *data,
+/*int havege_poll( void *data,
                  unsigned char *output, size_t len, size_t *olen );
 #endif
 
 #if defined(POLARSSL_TIMING_C)
-/**
+*/
+/*
  * \brief           hardclock-based entropy poll callback
  */
-int hardclock_poll( void *data,
+/*int hardclock_poll( void *data,
                     unsigned char *output, size_t len, size_t *olen );
 #endif
-
+tsk | 10.09 | commented above
+*/
 #ifdef __cplusplus
 }
 #endif

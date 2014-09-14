@@ -24,6 +24,9 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+ 
+
+
 #ifndef POLARSSL_AES_H
 #define POLARSSL_AES_H
 
@@ -33,15 +36,16 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#include <linux/string.h> //17_08 add linux/
-
+/*#include <string.h> tsk 10.09 */
+/*
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
-/*#include <basetsd.h>
+#include <basetsd.h>
 typedef UINT32 uint32_t;
 #else
-#include <inttypes.h>  20_08*/ 
+#include <inttypes.h>
 #endif
-
+tsk 10.09
+*/
 /* padlock.c and aesni.c rely on these values! */
 #define AES_ENCRYPT     1
 #define AES_DECRYPT     0

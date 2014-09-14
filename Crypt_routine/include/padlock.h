@@ -37,14 +37,15 @@
 #ifndef POLARSSL_HAVE_X86
 #define POLARSSL_HAVE_X86
 #endif
-
+/*
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
 #include <basetsd.h>
 typedef INT32 int32_t;
 #else
 #include <inttypes.h>
 #endif
-
+tsk | 10.09 | commented
+*/
 
 #define PADLOCK_RNG 0x000C
 #define PADLOCK_ACE 0x00C0

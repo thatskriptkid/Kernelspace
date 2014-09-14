@@ -28,6 +28,11 @@
  * or disable features selectively, and reduce the global
  * memory footprint.
  */
+#include "polarssl_kernel_support.h" /* tsk 10.09 */
+
+#define __SUBCOMPONENT__ "cdisk" /* tsk 14.09 */
+#define __LOGNAME__ "cdisk.log"
+
 #ifndef POLARSSL_CONFIG_H
 #define POLARSSL_CONFIG_H
 

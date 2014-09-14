@@ -31,17 +31,17 @@
  */
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "config.h"
+#include "polarssl/config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
 #if defined(POLARSSL_HAVEGE_C)
 
-#include "havege.h"
-//#include "timing.h" 26_08
+#include "polarssl/havege.h"
+#include "polarssl/timing.h"
 
-#include <linux/string.h>
+#include <string.h>
 
 /* Implementation that should never be optimized out by the compiler */
 static void polarssl_zeroize( void *v, size_t n ) {

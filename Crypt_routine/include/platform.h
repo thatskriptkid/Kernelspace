@@ -33,7 +33,7 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-//#include <stdio.h>
+/* #include <stdio.h> | tsk | 10.09 |commented */
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,7 +48,8 @@ extern "C" {
  */
 
 #if !defined(POLARSSL_PLATFORM_NO_STD_FUNCTIONS)
-//#include <stdlib.h>
+/*#include <stdlib.h> tsk| 10.09 */
+
 #if !defined(POLARSSL_PLATFORM_STD_PRINTF)
 #define POLARSSL_PLATFORM_STD_PRINTF   printf /**< Default printf to use  */
 #endif
@@ -112,6 +113,7 @@ int platform_set_printf( int (*printf_func)( const char *, ... ) );
 /*
  * The function pointers for fprintf
  */
+/*
 #if defined(POLARSSL_PLATFORM_FPRINTF_ALT)
 extern int (*polarssl_fprintf)( FILE *stream, const char *format, ... );
 
@@ -120,7 +122,8 @@ int platform_set_fprintf( int (*fprintf_func)( FILE *stream, const char *,
 #else
 #define polarssl_fprintf    fprintf
 #endif
-
+FPRINTF_ALT | tsk | 10.09
+*/
 #ifdef __cplusplus
 }
 #endif

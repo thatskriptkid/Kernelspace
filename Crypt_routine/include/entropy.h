@@ -27,7 +27,7 @@
 #ifndef POLARSSL_ENTROPY_H
 #define POLARSSL_ENTROPY_H
 
-#include <linux/string.h> //20_08 add linux/
+//#include <string.h> tsk 10.09
 
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
@@ -44,12 +44,10 @@
 #include "sha256.h"
 #endif
 #endif
-/*
+
 #if defined(POLARSSL_THREADING_C)
 #include "threading.h"
 #endif
-26_08
-*/
 
 #if defined(POLARSSL_HAVEGE_C)
 #include "havege.h"

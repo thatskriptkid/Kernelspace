@@ -32,8 +32,6 @@
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
-
-#include <linux/string.h>
 /*
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
 #include <basetsd.h>

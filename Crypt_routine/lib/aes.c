@@ -826,8 +826,8 @@ int aes_crypt_cbc( aes_context *ctx,
 {
     int i;
     unsigned char temp[16];
-
-    if( length % 16 )
+    
+	if( length % 16 )
         return( POLARSSL_ERR_AES_INVALID_INPUT_LENGTH );
 
 #if defined(POLARSSL_PADLOCK_C) && defined(POLARSSL_HAVE_X86)
@@ -844,6 +844,7 @@ int aes_crypt_cbc( aes_context *ctx,
 
     if( mode == AES_DECRYPT )
     {
+		
         while( length > 0 )
         {
             memcpy( temp, input, 16 );

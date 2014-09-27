@@ -90,7 +90,9 @@ int platform_entropy_poll( void *data,
     
     ((void) data);
     
-    mm_segment_t old_fs = get_fs();
+    mm_segment_t old_fs;
+    
+    old_fs = get_fs();
 	
 	set_fs(get_ds());
 
@@ -107,13 +109,9 @@ int platform_entropy_poll( void *data,
     
     filp = filp_open("/dev/urandom",O_RDONLY,0);
     
-    if(IS_ERR(filp)) {
-		printk(KERN_WARNING "filp_open() failed!\n");
+    if(IS_ERR(filp)) 
 		return POLARSSL_ERR_ENTROPY_SOURCE_FAILED;
-	}
-	else {
-		printk(KERN_WARNING "filp_open() success!\n");
-	}
+	
 	/*
     ret = fread( output, 1, len, file );
     if( ret != len )
@@ -133,6 +131,8 @@ int platform_entropy_poll( void *data,
 	}
 	
 	*olen = len;
+	
+	filp_close(filp,NULL);
 	
 	set_fs(old_fs);
 	

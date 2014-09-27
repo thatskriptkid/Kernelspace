@@ -1,12 +1,12 @@
-#include "polarssl_kernel_support.h"
-
 /* polarssl headers */
 
-#include "aes.h"
+//#include "aes.h"
 #include "entropy.h"  /* for generating AES key */
 #include "ctr_drbg.h" /* for generating AES key */
 
 /* polarssl headers */
+
+#include "polarssl_kernel_support.h"
 
 #define SUCCESS 0
 
@@ -26,7 +26,7 @@ static int AES_genkey(void);
 static int AES_enc(void);
 
 static int __init finit(void)
-{/*
+{
 	if(AES_genkey()) 
 		printk(KERN_INFO "AES_genkey() failed\n");
 	else 
@@ -37,17 +37,18 @@ static int __init finit(void)
 	else 
 		printk(KERN_INFO "AES_encrypt success!\n");
 	
-	*/
+	
 	return SUCCESS;
 }
 
 static int AES_enc(void)
 {
 	int ret;
-	memset(input,0,128);
-	input="Cottage out enabledwCottage out enabledw";
 	
+	input="Cottage out enabledwCottage out enabledw";
+	//aes_setkey_enc( aes_ctx, key, 256 );
 	aes_crypt_cbc(aes_ctx,AES_ENCRYPT,24,iv,input,output);
+	printk(KERN_WARNING "output =%s",output);
 	return SUCCESS;
 }
 

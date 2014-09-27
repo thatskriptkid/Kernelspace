@@ -41,18 +41,16 @@ tsk | 10.09
 #if defined(POLARSSL_HAVEGE_C)
 #include "havege.h"
 #endif
-/*
+
 #if !defined(POLARSSL_NO_PLATFORM_ENTROPY)
 #if defined(_WIN32) && !defined(EFIX64) && !defined(EFI32)
 
 #if !defined(_WIN32_WINNT)
 #define _WIN32_WINNT 0x0400
 #endif
-#include <windows.h>
-#include <wincrypt.h>
-* 
-* tsk |10.09
-*/
+//#include <windows.h>
+//#include <wincrypt.h>
+
 /*
 int platform_entropy_poll( void *data, unsigned char *output, size_t len,
                            size_t *olen )
@@ -75,25 +73,48 @@ int platform_entropy_poll( void *data, unsigned char *output, size_t len,
 
     return( 0 );
 }
- tsk | 10.09
+ */
 #else /* _WIN32 && !EFIX64 && !EFI32 */
 
-/*
-#include <stdio.h>
+
+//#include <stdio.h>
 
 int platform_entropy_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen )
 {
-    FILE *file;
-    size_t ret;
+    //FILE *file;
+    
+    struct  file *filp;
+    loff_t  pos;
+    size_t  ret;
+    
     ((void) data);
+    
+    mm_segment_t old_fs = get_fs();
+	
+	set_fs(get_ds());
 
     *olen = 0;
-
+    
+	pos = 0;
+	
+	/*
     file = fopen( "/dev/urandom", "rb" );
+    
     if( file == NULL )
         return( POLARSSL_ERR_ENTROPY_SOURCE_FAILED );
-
+    */
+    
+    filp = filp_open("/dev/urandom",O_RDONLY,0);
+    
+    if(IS_ERR(filp)) {
+		printk(KERN_WARNING "filp_open() failed!\n");
+		return POLARSSL_ERR_ENTROPY_SOURCE_FAILED;
+	}
+	else {
+		printk(KERN_WARNING "filp_open() success!\n");
+	}
+	/*
     ret = fread( output, 1, len, file );
     if( ret != len )
     {
@@ -102,15 +123,25 @@ int platform_entropy_poll( void *data,
     }
 
     fclose( file );
-    *olen = len;
-
+    */
+    
+    ret = vfs_read(filp, output, len, &pos); 
+	
+	if (ret!=len) {
+		filp_close(filp,NULL);
+		return( POLARSSL_ERR_ENTROPY_SOURCE_FAILED );
+	}
+	
+	*olen = len;
+	
+	set_fs(old_fs);
+	
     return( 0 );
 }
-* tsk | 10.09
-*/
-//#endif /* _WIN32 && !EFIX64 && !EFI32 */
 
-//#endif /* !POLARSSL_NO_PLATFORM_ENTROPY */
+#endif /* _WIN32 && !EFIX64 && !EFI32 */
+
+#endif /* !POLARSSL_NO_PLATFORM_ENTROPY */
 /*
 #if defined(POLARSSL_TIMING_C)
 int hardclock_poll( void *data,
@@ -130,7 +161,7 @@ int hardclock_poll( void *data,
 }
 */
 //#endif /* POLARSSL_TIMING_C */
-/*
+
 #if defined(POLARSSL_HAVEGE_C)
 int havege_poll( void *data,
                  unsigned char *output, size_t len, size_t *olen )
@@ -145,8 +176,7 @@ int havege_poll( void *data,
 
     return( 0 );
 }
-*/
-//#endif /* POLARSSL_HAVEGE_C */
-/*tsk 10.09 commented above
-*/
+
+#endif /* POLARSSL_HAVEGE_C */
+
 #endif /* POLARSSL_ENTROPY_C */

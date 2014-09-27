@@ -484,7 +484,7 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
 {
     unsigned int i;
     uint32_t *RK;
-
+	
 #if !defined(POLARSSL_AES_ROM_TABLES)
     if( aes_init_done == 0 )
     {

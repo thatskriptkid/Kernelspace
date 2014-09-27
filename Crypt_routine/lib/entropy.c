@@ -66,12 +66,12 @@ void entropy_init( entropy_context *ctx )
 #if defined(POLARSSL_HAVEGE_C)
     havege_init( &ctx->havege_data );
 #endif
-/*
+
 #if !defined(POLARSSL_NO_DEFAULT_ENTROPY_SOURCES)
 #if !defined(POLARSSL_NO_PLATFORM_ENTROPY)
     entropy_add_source( ctx, platform_entropy_poll, NULL,
                         ENTROPY_MIN_PLATFORM );
-#endif*/
+#endif
 /*
 #if defined(POLARSSL_TIMING_C)
     entropy_add_source( ctx, hardclock_poll, NULL, ENTROPY_MIN_HARDCLOCK );
@@ -82,7 +82,7 @@ void entropy_init( entropy_context *ctx )
                         ENTROPY_MIN_HAVEGE );
 #endif
 
-//#endif /* POLARSSL_NO_DEFAULT_ENTROPY_SOURCES */
+#endif /* POLARSSL_NO_DEFAULT_ENTROPY_SOURCES */
 }
 
 void entropy_free( entropy_context *ctx )

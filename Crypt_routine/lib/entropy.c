@@ -37,12 +37,11 @@
 #if defined(POLARSSL_FS_IO)
 #include <stdio.h>
 #endif
-
-#if defined(POLARSSL_HAVEGE_C)
-#include "polarssl/havege.h"
-#endif
-tsk | 14.09
 */
+#if defined(POLARSSL_HAVEGE_C)
+#include "havege.h"
+#endif
+
 
 /* Implementation that should never be optimized out by the compiler */
 static void polarssl_zeroize( void *v, size_t n ) {
@@ -67,22 +66,23 @@ void entropy_init( entropy_context *ctx )
 #if defined(POLARSSL_HAVEGE_C)
     havege_init( &ctx->havege_data );
 #endif
-
+/*
 #if !defined(POLARSSL_NO_DEFAULT_ENTROPY_SOURCES)
 #if !defined(POLARSSL_NO_PLATFORM_ENTROPY)
     entropy_add_source( ctx, platform_entropy_poll, NULL,
                         ENTROPY_MIN_PLATFORM );
-#endif
+#endif*/
 /*
 #if defined(POLARSSL_TIMING_C)
     entropy_add_source( ctx, hardclock_poll, NULL, ENTROPY_MIN_HARDCLOCK );
 #endif
+* */
 #if defined(POLARSSL_HAVEGE_C)
     entropy_add_source( ctx, havege_poll, &ctx->havege_data,
                         ENTROPY_MIN_HAVEGE );
 #endif
-*/
-#endif /* POLARSSL_NO_DEFAULT_ENTROPY_SOURCES */
+
+//#endif /* POLARSSL_NO_DEFAULT_ENTROPY_SOURCES */
 }
 
 void entropy_free( entropy_context *ctx )

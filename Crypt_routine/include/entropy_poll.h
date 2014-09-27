@@ -43,15 +43,15 @@ extern "C" {
 #define ENTROPY_MIN_PLATFORM    128     /**< Minimum for platform source    */
 #define ENTROPY_MIN_HAVEGE      128     /**< Minimum for HAVEGE             */
 #define ENTROPY_MIN_HARDCLOCK    32     /**< Minimum for hardclock()        */
-
+/*
 #if !defined(POLARSSL_NO_PLATFORM_ENTROPY)
 /**
  * \brief           Platform-specific entropy poll callback
- */
+ *//*
 int platform_entropy_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen );
 #endif
-
+*/
 #if defined(POLARSSL_HAVEGE_C)
 /**
  * \brief           HAVEGE based entropy poll callback
@@ -61,15 +61,15 @@ int platform_entropy_poll( void *data,
 int havege_poll( void *data,
                  unsigned char *output, size_t len, size_t *olen );
 #endif
-
+/*
 #if defined(POLARSSL_TIMING_C)
 /**
  * \brief           hardclock-based entropy poll callback
- */
+ *//*
 int hardclock_poll( void *data,
                     unsigned char *output, size_t len, size_t *olen );
 #endif
-
+*/
 #ifdef __cplusplus
 }
 #endif

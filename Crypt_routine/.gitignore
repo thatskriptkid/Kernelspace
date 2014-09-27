@@ -3,3 +3,5 @@
 *.mod.c
 *.ko
 *.ko.cmd
+*.symvers
+*.order

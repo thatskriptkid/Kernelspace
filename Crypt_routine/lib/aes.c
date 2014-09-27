@@ -38,9 +38,11 @@
 #if defined(POLARSSL_AES_C)
 
 #include "aes.h"
+/*
 #if defined(POLARSSL_PADLOCK_C)
 #include "padlock.h"
 #endif
+*/
 #if defined(POLARSSL_AESNI_C)
 #include "aesni.h"
 #endif
@@ -484,6 +486,7 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
 {
     unsigned int i;
     uint32_t *RK;
+    
 	
 #if !defined(POLARSSL_AES_ROM_TABLES)
     if( aes_init_done == 0 )
@@ -496,13 +499,15 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
 
     switch( keysize )
     {
+		
         case 128: ctx->nr = 10; break;
         case 192: ctx->nr = 12; break;
         case 256: ctx->nr = 14; break;
         default : return( POLARSSL_ERR_AES_INVALID_KEY_LENGTH );
     }
-
+/*
 #if defined(POLARSSL_PADLOCK_C) && defined(PADLOCK_ALIGN16)
+
     if( aes_padlock_ace == -1 )
         aes_padlock_ace = padlock_supports( PADLOCK_ACE );
 
@@ -510,9 +515,11 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
         ctx->rk = RK = PADLOCK_ALIGN16( ctx->buf );
     else
 #endif
+*/
     ctx->rk = RK = ctx->buf;
 
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
+
     if( aesni_supports( POLARSSL_AESNI_AES ) )
         return( aesni_setkey_enc( (unsigned char *) ctx->rk, key, keysize ) );
 #endif
@@ -600,15 +607,16 @@ int aes_setkey_dec( aes_context *ctx, const unsigned char *key,
     uint32_t *SK;
 
     aes_init( &cty );
-
+/*
 #if defined(POLARSSL_PADLOCK_C) && defined(PADLOCK_ALIGN16)
+
     if( aes_padlock_ace == -1 )
         aes_padlock_ace = padlock_supports( PADLOCK_ACE );
 
     if( aes_padlock_ace )
         ctx->rk = RK = PADLOCK_ALIGN16( ctx->buf );
     else
-#endif
+#endif*/
     ctx->rk = RK = ctx->buf;
 
     /* Also checks keysize */
@@ -716,7 +724,7 @@ int aes_crypt_ecb( aes_context *ctx,
     if( aesni_supports( POLARSSL_AESNI_AES ) )
         return( aesni_crypt_ecb( ctx, mode, input, output ) );
 #endif
-
+/*
 #if defined(POLARSSL_PADLOCK_C) && defined(POLARSSL_HAVE_X86)
     if( aes_padlock_ace )
     {
@@ -728,7 +736,7 @@ int aes_crypt_ecb( aes_context *ctx,
         //
     }
 #endif
-
+*/
     RK = ctx->rk;
 
     GET_UINT32_LE( X0, input,  0 ); X0 ^= *RK++;
@@ -829,7 +837,7 @@ int aes_crypt_cbc( aes_context *ctx,
     
 	if( length % 16 )
         return( POLARSSL_ERR_AES_INVALID_INPUT_LENGTH );
-
+/*
 #if defined(POLARSSL_PADLOCK_C) && defined(POLARSSL_HAVE_X86)
     if( aes_padlock_ace )
     {
@@ -841,7 +849,7 @@ int aes_crypt_cbc( aes_context *ctx,
         //
     }
 #endif
-
+*/
     if( mode == AES_DECRYPT )
     {
 		

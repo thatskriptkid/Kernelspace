@@ -369,7 +369,9 @@ int sha512_file( const char *path, unsigned char output[64], int is384 )
     loff_t pos;
     sha512_context ctx;
     unsigned char __user buf[1024];
-	mm_segment_t old_fs = get_fs();
+	mm_segment_t old_fs;
+	
+	old_fs = get_fs();
 	
 	set_fs(get_ds());
 	
@@ -394,15 +396,15 @@ int sha512_file( const char *path, unsigned char output[64], int is384 )
     sha512_finish( &ctx, output );
     sha512_free( &ctx );
 
-    if(n<0)
-    {
+    if(n<0) {
         filp_close(f,NULL);
         return (POLARSSL_ERR_SHA512_FILE_IO_ERROR);
     }
 
     filp_close(f,NULL);
     set_fs(old_fs);
-    return( 0 );
+    
+    return 0;
 }
 #endif /* POLARSSL_FS_IO */
 
@@ -802,9 +804,9 @@ int sha512_self_test( int verbose )
         klog(KL_DBG, "\n" );
 
 exit:
-    sha512_free( &ctx );
+    sha512_free(&ctx);
 
-    return( ret );
+    return ret;
 }
 
 #endif /* POLARSSL_SELF_TEST */

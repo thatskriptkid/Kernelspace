@@ -28,7 +28,9 @@
  * or disable features selectively, and reduce the global
  * memory footprint.
  */
+ 
 #include "polarssl_kernel_support.h"
+#include "platform.h"
 
 #ifndef POLARSSL_CONFIG_H
 #define POLARSSL_CONFIG_H
@@ -150,7 +152,7 @@
  * Uncomment to prevent default assignment of standard functions in the
  * platform layer.
  */
-//#define POLARSSL_PLATFORM_NO_STD_FUNCTIONS
+#define POLARSSL_PLATFORM_NO_STD_FUNCTIONS
 
 /**
  * \def POLARSSL_PLATFORM_XXX_ALT
@@ -777,7 +779,7 @@
 //#define POLARSSL_RSA_NO_CRT
 
 /**
- * \def POLARSSL_SELF_TEST
+ * \def POLARSSL_TEST
  *
  * Enable the checkup functions (*_self_test).
  */

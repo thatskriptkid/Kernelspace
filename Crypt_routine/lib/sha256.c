@@ -371,7 +371,9 @@ int sha256_file( const char *path, unsigned char output[32], int is224 )
     sha256_context ctx;
     unsigned char __user buf[1024];
     loff_t pos;
-	mm_segment_t old_fs = get_fs();
+	mm_segment_t old_fs;
+	
+	old_fs = get_fs();
 	
 	set_fs(get_ds());
 	
@@ -404,13 +406,13 @@ int sha256_file( const char *path, unsigned char output[32], int is224 )
 	
 	if (n<0) {
         filp_close(f,NULL);
-        return( POLARSSL_ERR_SHA256_FILE_IO_ERROR );
+        return (POLARSSL_ERR_SHA256_FILE_IO_ERROR);
     }
     
     filp_close(f,NULL);
     set_fs(old_fs);
     
-    return( 0 );
+    return 0;
 }
 #endif /* POLARSSL_FS_IO */
 

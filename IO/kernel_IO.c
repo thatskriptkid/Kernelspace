@@ -60,7 +60,9 @@ static int __init finit(void)
 		printk(KERN_WARNING "vfs_read failed\n");
 	else
 		printk(KERN_WARNING "bytes_read = %d \n",((int)bytes_read));
-			
+	
+	kfree(buff);
+	
 	filp_close(filp,NULL);
 	
 	set_fs(old_fs);

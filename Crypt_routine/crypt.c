@@ -5,12 +5,6 @@
 
 #include "polarssl_kernel_support.h"
 
-#if !defined(POLARSSL_CONFIG_FILE)
-#include "config.h"
-#else
-#include POLARSSL_CONFIG_FILE
-#endif
-
 #define SUCCESS 0
 
 static 				  ctr_drbg_context ctr_drbg_ctx;
@@ -37,7 +31,6 @@ static int __init 	  finit(void)
 		goto out;
 	}
 	
-	
 	if(AES_genkey())
 		printk(KERN_INFO "AES_genkey() failed\n");
 	else
@@ -61,7 +54,7 @@ static int AES_enc(void)
 	
 	memset(output,0,128);
 	
-	if(aes_crypt_cbc(&ctr_drbg.aes_ctx,AES_ENCRYPT,32,iv,input,output)!=0) {
+	if(aes_crypt_cbc(&ctr_drbg_ctx.aes_ctx,AES_ENCRYPT,32,iv,input,output)!=0) {
 		printk(KERN_WARNING "aes_crypt_cbc() failed!\n");
 		return 1;
 	}
@@ -73,7 +66,7 @@ static int AES_genkey(void)
 {
 	entropy_init(&entropy);
 
-	if((ret=ctr_drbg_init(&ctr_drbg,entropy_func,&entropy,(const unsigned char*) pers,strlen(pers)))!=0) {
+	if((ret=ctr_drbg_init(&ctr_drbg_ctx,entropy_func,&entropy,(const unsigned char*) pers,strlen(pers)))!=0) {
 		printk(KERN_INFO "ctr_drbg_init() failed!\n");
 		goto cleanup;
 	}
@@ -81,7 +74,7 @@ static int AES_genkey(void)
 		printk(KERN_INFO "ctr_drbg_init() success!\n");
 	}
 	
-	if ((ret=ctr_drbg_random(&ctr_drbg_ct,key,32))!=0) { /* key - is newly generated 256-bit AES key */
+	if ((ret=ctr_drbg_random(&ctr_drbg_ctx,key,32))!=0) { /* key - is newly generated 256-bit AES key */
 		printk(KERN_INFO "ctr_drbg_random() failed\n");
 		goto cleanup;
 	}

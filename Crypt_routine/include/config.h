@@ -132,7 +132,7 @@
  *
  * Enable this layer to allow use of alternative memory allocators.
  */
-//#define POLARSSL_PLATFORM_MEMORY
+#define POLARSSL_PLATFORM_MEMORY
 
 /**
  * \def POLARSSL_PLATFORM_NO_STD_FUNCTIONS
@@ -1655,7 +1655,7 @@
  *
  * This modules adds support for the VIA PadLock on x86.
  */
-#define POLARSSL_PADLOCK_C
+//#define POLARSSL_PADLOCK_C
 
 /**
  * \def POLARSSL_PBKDF2_C

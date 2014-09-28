@@ -717,7 +717,7 @@ int aes_crypt_ecb( aes_context *ctx,
                     const unsigned char input[16],
                     unsigned char output[16] )
 {
-    int i;
+	int i;
     uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
 
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
@@ -837,6 +837,8 @@ int aes_crypt_cbc( aes_context *ctx,
     
 	if( length % 16 )
         return( POLARSSL_ERR_AES_INVALID_INPUT_LENGTH );
+     
+      
 /*
 #if defined(POLARSSL_PADLOCK_C) && defined(POLARSSL_HAVE_X86)
     if( aes_padlock_ace )
@@ -870,11 +872,11 @@ int aes_crypt_cbc( aes_context *ctx,
     }
     else
     {
-        while( length > 0 )
+		while( length > 0 )
         {
-            for( i = 0; i < 16; i++ )
+            for( i = 0; i < 16; i++ ) 
                 output[i] = (unsigned char)( input[i] ^ iv[i] );
-
+				
             aes_crypt_ecb( ctx, mode, output, output );
             memcpy( iv, output, 16 );
 
@@ -883,7 +885,8 @@ int aes_crypt_cbc( aes_context *ctx,
             length -= 16;
         }
     }
-
+	
+	   
     return( 0 );
 }
 #endif /* POLARSSL_CIPHER_MODE_CBC */

@@ -99,8 +99,8 @@ int platform_set_malloc_free( void * (*malloc_func)( size_t,int ),
  * The function pointers for printf
  */
 #if defined(POLARSSL_PLATFORM_PRINTF_ALT)
-extern int (*polarssl_printf)( const char *format, ... );
-
+//extern int (*polarssl_printf)( const char *format, ... );
+extern void (*polarssl_printf)( int level, ...);
 /**
  * \brief   Set your own printf function pointer
  *
@@ -108,9 +108,12 @@ extern int (*polarssl_printf)( const char *format, ... );
  *
  * \return              0
  */
-int platform_set_printf( int (*printf_func)( const char *, ... ) );
-#else /* POLARSSL_PLATFORM_PRINTF_ALT */
-#define polarssl_printf     printf
+//int platform_set_printf( int (*printf_func)( const char *, ... ) );
+
+int platform_set_printf( void (*printf_func)( int ,...) );
+
+//#else /* POLARSSL_PLATFORM_PRINTF_ALT */
+//#define polarssl_printf     printf
 #endif /* POLARSSL_PLATFORM_PRINTF_ALT */
 
 /*

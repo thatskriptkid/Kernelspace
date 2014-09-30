@@ -169,7 +169,7 @@
  * Uncomment a macro to enable alternate implementation of specific base
  * platform function
  */
-//#define POLARSSL_PLATFORM_PRINTF_ALT
+#define POLARSSL_PLATFORM_PRINTF_ALT
 //#define POLARSSL_PLATFORM_FPRINTF_ALT
 /* \} name SECTION: System support */
 
@@ -192,7 +192,7 @@
  * You will need to provide a header "timing_alt.h" and an implementation at
  * compile time.
  */
-//#define POLARSSL_TIMING_ALT
+#define POLARSSL_TIMING_ALT
 
 /**
  * \def POLARSSL_XXX_ALT
@@ -232,7 +232,7 @@
  * Uncomment this macro to store the AES tables in ROM.
  *
  */
-//#define POLARSSL_AES_ROM_TABLES
+#define POLARSSL_AES_ROM_TABLES
 
 /**
  * \def POLARSSL_CIPHER_MODE_CBC

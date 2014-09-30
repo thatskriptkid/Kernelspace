@@ -28,7 +28,6 @@
  *  http://csrc.nist.gov/publications/nistpubs/800-90/SP800-90revised_March2007.pdf
  */
 
-
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
 #else
@@ -36,20 +35,21 @@
 #endif
 
 #if defined(POLARSSL_CTR_DRBG_C)
+
 #include "ctr_drbg.h"
-/*#if defined(POLARSSL_FS_IO)
-#include <stdio.h>
+
+/*
+#if defined(POLARSSL_FS_IO)
+#include <stdio.h>*/
 #endif
-*/
+
 
 #if defined(POLARSSL_PLATFORM_C)
-#include "platform.h"
-/*
+#include "platform.h"/*
 #else
 #define polarssl_printf printf
-*/
 #endif
-
+*/
 /* Implementation that should never be optimized out by the compiler */
 static void polarssl_zeroize( void *v, size_t n ) {
     volatile unsigned char *p = v; while( n-- ) *p++ = 0;
@@ -280,7 +280,6 @@ int ctr_drbg_reseed( ctr_drbg_context *ctx,
     if( 0 != ctx->f_entropy( ctx->p_entropy, seed,
                              ctx->entropy_len ) )
     {
-		
         return( POLARSSL_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED );
     }
 
@@ -384,109 +383,83 @@ int ctr_drbg_random( void *p_rng, unsigned char *output, size_t output_len )
 int ctr_drbg_write_seed_file( ctr_drbg_context *ctx, const char *path )
 {
     int ret = POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR;
-//    FILE *f;
-	struct file *f;
-    unsigned char __user buf[CTR_DRBG_MAX_INPUT];
-	ssize_t bytes_writed;
-	loff_t pos;
-	
-	mm_segment_t old_fs = get_fs();
-	set_fs(get_ds());
-	
-    f = filp_open(path,O_RDWR,0);
-    
-    if (IS_ERR(f))
-		return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
-
-    if( ( ret = ctr_drbg_random( ctx, buf, CTR_DRBG_MAX_INPUT ) ) != 0 )
-        goto exit;
-	
-	pos = 0;
-	bytes_writed = vfs_write(f,buf,CTR_DRBG_MAX_INPUT,&pos);
-	
-	if (bytes_writed != CTR_DRBG_MAX_INPUT) {
-		ret = POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR;
-		goto exit;
-	}
-	
-	/*
-    if( fwrite( buf, 1, CTR_DRBG_MAX_INPUT, f ) != CTR_DRBG_MAX_INPUT )
-    {
-        ret = POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR;
-        goto exit;
-    }
-	*/
-    ret = 0;
-
+// FILE *f;
+struct file *f;
+unsigned char __user buf[CTR_DRBG_MAX_INPUT];
+ssize_t bytes_writed;
+loff_t pos;
+mm_segment_t old_fs = get_fs();
+set_fs(get_ds());
+f = filp_open(path,O_RDWR,0);
+if (IS_ERR(f))
+return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
+if( ( ret = ctr_drbg_random( ctx, buf, CTR_DRBG_MAX_INPUT ) ) != 0 )
+goto exit;
+pos = 0;
+bytes_writed = vfs_write(f,buf,CTR_DRBG_MAX_INPUT,&pos);
+if (bytes_writed != CTR_DRBG_MAX_INPUT) {
+ret = POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR;
+goto exit;
+}
+/*
+if( fwrite( buf, 1, CTR_DRBG_MAX_INPUT, f ) != CTR_DRBG_MAX_INPUT )
+{
+ret = POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR;
+goto exit;
+}
+*/
+ret = 0;
 exit:
-	filp_close(f,NULL);
-    //fclose( f ); tsk | 14.09
-    
-    set_fs(old_fs);
-    
-    return( ret );
+filp_close(f,NULL);
+//fclose( f ); tsk | 14.09
+set_fs(old_fs);
+return( ret );
 }
 
 int ctr_drbg_update_seed_file( ctr_drbg_context *ctx, const char *path )
 {
     //FILE *f;
-    struct file *f;
-    loff_t n,pos;
-    unsigned char __user buf[CTR_DRBG_MAX_INPUT];
-	ssize_t bytes_read;
-	/*	
-    if( ( f = fopen( path, "rb" ) ) == NULL )
-        return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
-	
-    fseek( f, 0, SEEK_END );
-    
-    n = (size_t) ftell( f );
-    
-    fseek( f, 0, SEEK_SET );
-	*/
-	mm_segment_t old_fs = get_fs();
-	set_fs(get_ds());
-	
-	f = filp_open(path,O_RDONLY,0);
-    
-    if (IS_ERR(f))
-		return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
-	
-	n = vfs_llseek(f,0,SEEK_END);
-	
-	vfs_llseek(f,0,SEEK_SET);
-	
-	if( n > CTR_DRBG_MAX_INPUT )
-    {
-        //fclose( f );
-        filp_close(f,NULL);
-        return( POLARSSL_ERR_CTR_DRBG_INPUT_TOO_BIG );
-    }
-    /*
-
-    if( fread( buf, 1, n, f ) != n )
-    {
-        fclose( f );
-        return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
-    }
+struct file *f;
+loff_t n,pos;
+unsigned char __user buf[CTR_DRBG_MAX_INPUT];
+ssize_t bytes_read;
+/*
+if( ( f = fopen( path, "rb" ) ) == NULL )
+return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
+fseek( f, 0, SEEK_END );
+n = (size_t) ftell( f );
+fseek( f, 0, SEEK_SET );
 */
-	
-	pos=0;
-	
-	bytes_read = vfs_read(f,buf,n,&pos); 
-	
-	if (bytes_read<0)  {
-		filp_close(f,NULL);
-		return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR);
-	}
-	
-    filp_close(f,NULL);
-	
-	set_fs(old_fs);
-	
-    ctr_drbg_update(ctx,buf,n);
-	
-    return(ctr_drbg_write_seed_file(ctx,path));
+mm_segment_t old_fs = get_fs();
+set_fs(get_ds());
+f = filp_open(path,O_RDONLY,0);
+if (IS_ERR(f))
+return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
+n = vfs_llseek(f,0,SEEK_END);
+vfs_llseek(f,0,SEEK_SET);
+if( n > CTR_DRBG_MAX_INPUT )
+{
+//fclose( f );
+filp_close(f,NULL);
+return( POLARSSL_ERR_CTR_DRBG_INPUT_TOO_BIG );
+}
+/*
+if( fread( buf, 1, n, f ) != n )
+{
+fclose( f );
+return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
+}
+*/
+pos=0;
+bytes_read = vfs_read(f,buf,n,&pos);
+if (bytes_read<0) {
+filp_close(f,NULL);
+return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR);
+}
+filp_close(f,NULL);
+set_fs(old_fs);
+ctr_drbg_update(ctx,buf,n);
+return(ctr_drbg_write_seed_file(ctx,path));
 }
 #endif /* POLARSSL_FS_IO */
 
@@ -547,7 +520,7 @@ static int ctr_drbg_self_test_entropy( void *data, unsigned char *buf,
 #define CHK( c )    if( (c) != 0 )                          \
                     {                                       \
                         if( verbose != 0 )                  \
-                            klog(KL_DBG, "failed\n" );  \
+                            polarssl_printf( "failed\n" );  \
                         return( 1 );                        \
                     }
 
@@ -563,7 +536,7 @@ int ctr_drbg_self_test( int verbose )
      * Based on a NIST CTR_DRBG test vector (PR = True)
      */
     if( verbose != 0 )
-        klog(KL_DBG, "  CTR_DRBG (PR = TRUE) : " );
+        polarssl_printf("  CTR_DRBG (PR = TRUE) : " );
 
     test_offset = 0;
     CHK( ctr_drbg_init_entropy_len( &ctx, ctr_drbg_self_test_entropy,
@@ -574,13 +547,13 @@ int ctr_drbg_self_test( int verbose )
     CHK( memcmp( buf, result_pr, CTR_DRBG_BLOCKSIZE ) );
 
     if( verbose != 0 )
-        klog(KL_DBG, "passed\n" );
+        polarssl_printf( "passed\n" );
 
     /*
      * Based on a NIST CTR_DRBG test vector (PR = FALSE)
      */
     if( verbose != 0 )
-        klog(KL_DBG, "  CTR_DRBG (PR = FALSE): " );
+        polarssl_printf( "  CTR_DRBG (PR = FALSE): " );
 
     test_offset = 0;
     CHK( ctr_drbg_init_entropy_len( &ctx, ctr_drbg_self_test_entropy,
@@ -591,10 +564,10 @@ int ctr_drbg_self_test( int verbose )
     CHK( memcmp( buf, result_nopr, 16 ) );
 
     if( verbose != 0 )
-        klog(KL_DBG, "passed\n" );
+        polarssl_printf( "passed\n" );
 
     if( verbose != 0 )
-            klog(KL_DBG, "\n" );
+            polarssl_printf( "\n" );
 
     return( 0 );
 }

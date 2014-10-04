@@ -1,4 +1,5 @@
 /* polarssl headers */
+#include "aes.h"
 #include "entropy.h" /* for generating AES key */
 #include "ctr_drbg.h" /* for generating AES key */
 /* polarssl headers */
@@ -12,7 +13,7 @@ static 				  entropy_context entropy;
 static unsigned char  key[32]; // hold 256-bits key
 static const unsigned char 		 *pers = "wm82nZNB8FAfkqXMVD7G"; // our random string :)
 static unsigned char  iv[16]="wm82nZNB8FAfkqXM"; //initialization vector
-static unsigned char  input[128]="Cottage out enabledwCottage out enablqwe";
+static unsigned char  input[128];
 static unsigned char  output[128];
 static size_t 		  input_len=40;
 static size_t		  output_len=0;
@@ -24,13 +25,16 @@ static int 			  AES_enc(void);
 static int __init 	  finit(void)
 {
 	int error = -EINVAL;
-	error = klog_init(KL_INF_L);
-
+	
+	error = klog_init(KL_DBG_L);
+	
 	if (error) {
 		printk(KERN_ERR "klog_init failed with err=%d", error);
 		goto out;
 	}
 	
+	polarssl_printf("polarssl_printf hit!\n");
+	/*
 	if(AES_genkey())
 		printk(KERN_INFO "AES_genkey() failed\n");
 	else
@@ -40,7 +44,7 @@ static int __init 	  finit(void)
 		printk(KERN_INFO "AES_encrypt() failed\n");
 	else
 		printk(KERN_INFO "AES_encrypt success!\n");
-	
+	*/
 	out:
 		klog_release();
 		
@@ -53,6 +57,10 @@ static int AES_enc(void)
 	int i;
 	
 	memset(output,0,128);
+	
+	memset(input,0,128);
+	
+	input[128]="Cottage out enabledwCottage out enablqwe";
 	
 	if(aes_crypt_cbc(&ctr_drbg_ctx.aes_ctx,AES_ENCRYPT,32,iv,input,output)!=0) {
 		printk(KERN_WARNING "aes_crypt_cbc() failed!\n");

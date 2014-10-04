@@ -35,15 +35,13 @@
 
 #if defined(POLARSSL_PLATFORM_MEMORY)
 #if !defined(POLARSSL_PLATFORM_STD_MALLOC)
-
-static void *platform_malloc_uninit( size_t len ,int flag	)
+static void *platform_malloc_uninit( size_t len )
 {
     ((void) len);
     return( NULL );
 }
 
 #define POLARSSL_PLATFORM_STD_MALLOC   platform_malloc_uninit
-//#define POLARSSL_PLATFORM_STD_MALLOC   polarssl_malloc
 #endif /* !POLARSSL_PLATFORM_STD_MALLOC */
 
 #if !defined(POLARSSL_PLATFORM_STD_FREE)
@@ -51,16 +49,15 @@ static void platform_free_uninit( void *ptr )
 {
     ((void) ptr);
 }
+
 #define POLARSSL_PLATFORM_STD_FREE     platform_free_uninit
-//#define POLARSSL_PLATFORM_STD_FREE     polarssl_free
 #endif /* !POLARSSL_PLATFORM_STD_FREE */
 
-void * (*polarssl_malloc)( size_t,int ) = POLARSSL_PLATFORM_STD_MALLOC;
+void * (*polarssl_malloc)( size_t ) = POLARSSL_PLATFORM_STD_MALLOC;
 void (*polarssl_free)( void * )     = POLARSSL_PLATFORM_STD_FREE;
 
-int platform_set_malloc_free( //void * (*malloc_func)( size_t ),
-							void * (*malloc_func)(size_t,int), //thatskriptkid 28/09
-                              void (*free_func)(void *) )
+int platform_set_malloc_free( void * (*malloc_func)( size_t ),
+                              void (*free_func)( void * ) )
 {
     polarssl_malloc = malloc_func;
     polarssl_free = free_func;
@@ -73,34 +70,17 @@ int platform_set_malloc_free( //void * (*malloc_func)( size_t ),
 /*
  * Make dummy function to prevent NULL pointer dereferences
  */
- /*
 static int platform_printf_uninit( const char *format, ... )
 {
     ((void) format);
     return( 0 );
 }
-*/
 
-static void platform_printf_uninit( int level, ...)
-{
-
-    //return 0;
-}
-
-static void printf_wrapper()
-{
-	platform_printf_uninit(KL_DBG,...);
-    //return 0;
-}
-
-//#define POLARSSL_PLATFORM_STD_PRINTF    platform_printf_uninit
-#define POLARSSL_PLATFORM_STD_PRINTF printf_wrapper
+#define POLARSSL_PLATFORM_STD_PRINTF    platform_printf_uninit
 #endif /* !POLARSSL_PLATFORM_STD_PRINTF */
 
-//int (*polarssl_printf)(const char *, ...) = POLARSSL_PLATFORM_STD_PRINTF;
-void (*polarssl_printf)(int level, ...) = POLARSSL_PLATFORM_STD_PRINTF;
 
-void (*polarssl_printf_wrapper)(void) = POLARSSL_PLATFORM_STD_PRINTF;
+//int (*polarssl_printf)( const char *, ... ) = POLARSSL_PLATFORM_STD_PRINTF;
 /*
 int platform_set_printf( int (*printf_func)( const char *, ... ) )
 {
@@ -108,20 +88,12 @@ int platform_set_printf( int (*printf_func)( const char *, ... ) )
     return( 0 );
 }
 
-*/
-/*
-int platform_set_printf( void (*printf_func)( int level,...))
+int platform_set_printf(void)
 {
     polarssl_printf = printf_func;
-    return 0;
+    return( 0 );
 }
 */
-
-int platform_set_printf( void (*printf_func)(void))
-{
-    polarssl_printf = printf_func;
-    return 0;
-}
 
 #endif /* POLARSSL_PLATFORM_PRINTF_ALT */
 

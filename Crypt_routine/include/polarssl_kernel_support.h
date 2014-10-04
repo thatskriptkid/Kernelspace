@@ -21,4 +21,5 @@
 
 #define __SUBCOMPONENT__ "mycrypt"
 #define __LOGNAME__ "mycrypt.log"
-#define polarssl_printf(s) klog(KL_DBG,s) 
+#define polarssl_printf(a) klog(KL_DBG,a) 
+

@@ -592,7 +592,7 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
             break;
     }
 
-    return( 0 );
+    return 0;
 }
 
 /*

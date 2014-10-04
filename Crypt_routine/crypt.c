@@ -15,12 +15,14 @@ static const unsigned char 		 *pers = "wm82nZNB8FAfkqXMVD7G"; // our random stri
 static unsigned char  iv[16]="wm82nZNB8FAfkqXM"; //initialization vector
 static unsigned char  input[128];
 static unsigned char  output[128];
+static unsigned char  dec_output[128];
 static size_t 		  input_len=40;
 static size_t		  output_len=0;
 static int 			  ret;
 
 static int 			  AES_genkey(void);
 static int 			  AES_enc(void);
+static int			  AES_dec(void);
 
 static int __init 	  finit(void)
 {
@@ -33,8 +35,6 @@ static int __init 	  finit(void)
 		goto out;
 	}
 	
-	polarssl_printf("polarssl_printf hit!\n");
-	/*
 	if(AES_genkey())
 		printk(KERN_INFO "AES_genkey() failed\n");
 	else
@@ -43,14 +43,41 @@ static int __init 	  finit(void)
 	if(AES_enc())
 		printk(KERN_INFO "AES_encrypt() failed\n");
 	else
-		printk(KERN_INFO "AES_encrypt success!\n");
-	*/
+		printk(KERN_INFO "AES_encrypt() success!\n");
+		
+	if(AES_dec())
+		printk(KERN_INFO "AES_dec() failed\n");
+	else
+		printk(KERN_INFO "AES_dec() success!\n");
+		
 	out:
 		klog_release();
 		
 	return SUCCESS;
 }
 
+static int AES_dec(void)
+{
+	//iv[16]="sabcdefghkasdsdd";
+	memset(iv,0,16);
+	memcpy(iv,"sabcdefghkasdsdd",16);
+	
+	memset(dec_output,0,128);
+	
+	if(aes_setkey_dec(&ctr_drbg_ctx.aes_ctx,key,256)!=0) {
+		printk(KERN_WARNING "aes_setkey_dec() failed\n");
+		return 1;
+	}
+	
+	
+	if(aes_crypt_cbc(&ctr_drbg_ctx.aes_ctx,AES_DECRYPT,32,iv,output,dec_output)!=0) {
+		printk(KERN_WARNING "aes_crypt_cbc() failed!\n");
+		return 1;
+	}
+	
+	klog(KL_DBG,"decrypted string = %s\n",dec_output);
+	return SUCCESS;
+}
 static int AES_enc(void)
 {
 	int ret;
@@ -60,12 +87,21 @@ static int AES_enc(void)
 	
 	memset(input,0,128);
 	
-	input[128]="Cottage out enabledwCottage out enablqwe";
+	//input[128]="Cottage out enabledwCottage out enablqwe";
+	
+	memcpy(input,"Cottage out enabledwCottage out enablqwe",40);
+	
+	if(aes_setkey_enc(&ctr_drbg_ctx.aes_ctx,key,256)!=0) {
+		printk(KERN_WARNING "aes_setkey_enc() failed\n");
+		return 1;
+	}
 	
 	if(aes_crypt_cbc(&ctr_drbg_ctx.aes_ctx,AES_ENCRYPT,32,iv,input,output)!=0) {
 		printk(KERN_WARNING "aes_crypt_cbc() failed!\n");
 		return 1;
 	}
+	
+	klog(KL_DBG,"encrypted string = %s\n",output);
 	
 	return SUCCESS;
 }

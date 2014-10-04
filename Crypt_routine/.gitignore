@@ -5,3 +5,4 @@
 *.ko.cmd
 *.symvers
 *.order
+*.tmp_versions/

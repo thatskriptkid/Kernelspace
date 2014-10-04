@@ -1,5 +1,7 @@
 #pragma once 
 
+/* Linux Kernel headers */
+ 
 #include <linux/kernel.h>  // printk()
 #include <linux/module.h>  // THIS_MODULE
 #include <linux/init.h>    // __init(),__exit()
@@ -12,6 +14,9 @@
 #include <linux/fs.h>
 #include <asm/segment.h>
 #include <linux/types.h>
+
+/* Linux Kernel headers */ 
+
 #include "klog.h"
 
 #define __SUBCOMPONENT__ "mycrypt"

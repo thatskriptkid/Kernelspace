@@ -1,31 +1,28 @@
 /* polarssl headers */
 #include "aes.h"
-#include "entropy.h" /* for generating AES key */
-#include "ctr_drbg.h" /* for generating AES key */
+#include "entropy.h" 
+#include "ctr_drbg.h"
 /* polarssl headers */
 
 #include "polarssl_kernel_support.h"
 
 #define SUCCESS 0
+#define KEY_LENGTH 32
 
 static 				  ctr_drbg_context ctr_drbg_ctx;
-static 				  ctr_drbg_context ctr_drbg_ctx_2;
 static 				  entropy_context entropy;
 static unsigned char  key[32]; // hold 256-bits key
-static const unsigned char 		 *pers = "wm82nZNB8FAfkqXMVD7G"; // our random string :)
-static unsigned char  iv[16]="wm82nZNB8FAfkqXM"; //initialization vector
+static unsigned char  *pers   = "wm82nZNB8FAfkqXMVD7G"; // our random string :)
+static unsigned char  init_vector[16] ="wm82nZNB8FAfkqXM"; //initialization vector
 static unsigned char  input[128];
 static unsigned char  output[128];
 static unsigned char  dec_output[128];
-static size_t 		  input_len=40;
-static size_t		  output_len=0;
-static int 			  ret;
 
 static int 			  AES_genkey(void);
 static int 			  AES_enc(void);
 static int			  AES_dec(void);
 
-static int __init 	  finit(void)
+static int __init finit(void)
 {
 	int error = -EINVAL;
 	
@@ -59,8 +56,7 @@ static int __init 	  finit(void)
 
 static int AES_dec(void)
 {
-	//iv[16]="sabcdefghkasdsdd";
-	memcpy(iv,"wm82nZNB8FAfkqXM",16);
+	memcpy(init_vector,"wm82nZNB8FAfkqXM",16);
 	
 	memset(dec_output,0,128);
 	
@@ -69,8 +65,7 @@ static int AES_dec(void)
 		return 1;
 	}
 	
-	
-	if(aes_crypt_cbc(&ctr_drbg_ctx.aes_ctx,AES_DECRYPT,32,iv,output,dec_output)!=0) {
+	if(aes_crypt_cbc(&ctr_drbg_ctx.aes_ctx,AES_DECRYPT,KEY_LENGTH,init_vector,output,dec_output)!=0) {
 		printk(KERN_WARNING "aes_crypt_cbc() failed!\n");
 		return 1;
 	}
@@ -80,16 +75,10 @@ static int AES_dec(void)
 }
 static int AES_enc(void)
 {
-	int ret;
-	int i;
-	
 	memset(output,0,128);
 	
 	memset(input,0,128);
 	
-	//input[128]="Cottage out enabledwCottage out enablqwe";
-	
-	//memcpy(input,"Cottage out enabledwCottage out enablqwe",40);
 	memcpy(input,"abcdefghiklmnoplqrstabcdefghiklmnoplqrst",40);
 	
 	if(aes_setkey_enc(&ctr_drbg_ctx.aes_ctx,key,256)!=0) {
@@ -97,7 +86,7 @@ static int AES_enc(void)
 		return 1;
 	}
 	
-	if(aes_crypt_cbc(&ctr_drbg_ctx.aes_ctx,AES_ENCRYPT,32,iv,input,output)!=0) {
+	if(aes_crypt_cbc(&ctr_drbg_ctx.aes_ctx,AES_ENCRYPT,KEY_LENGTH,init_vector,input,output)!=0) {
 		printk(KERN_WARNING "aes_crypt_cbc() failed!\n");
 		return 1;
 	}
@@ -109,6 +98,8 @@ static int AES_enc(void)
 
 static int AES_genkey(void)
 {
+	int ret; 
+	
 	entropy_init(&entropy);
 
 	if((ret=ctr_drbg_init(&ctr_drbg_ctx,entropy_func,&entropy,(const unsigned char*) pers,strlen(pers)))!=0) {
@@ -137,6 +128,7 @@ static int AES_genkey(void)
 
 static void __exit fexit(void)
 {
+	ctr_drbg_free(&ctr_drbg_ctx);
 }
 
 module_init(finit);

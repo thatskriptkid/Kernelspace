@@ -12,7 +12,7 @@
 static 				  ctr_drbg_context ctr_drbg_ctx;
 static 				  entropy_context entropy;
 static unsigned char  key[32]; // hold 256-bits key
-static unsigned char  *pers   = "wm82nZNB8FAfkqXMVD7G"; // our random string :)
+static unsigned char  *random_str   = "wm82nZNB8FAfkqXMVD7G"; // our random string :)
 static unsigned char  init_vector[16] ="wm82nZNB8FAfkqXM"; //initialization vector
 static unsigned char  input[128];
 static unsigned char  output[128];
@@ -102,7 +102,7 @@ static int AES_genkey(void)
 	
 	entropy_init(&entropy);
 
-	if((ret=ctr_drbg_init(&ctr_drbg_ctx,entropy_func,&entropy,(const unsigned char*) pers,strlen(pers)))!=0) {
+	if((ret=ctr_drbg_init(&ctr_drbg_ctx,entropy_func,&entropy,(unsigned char*) random_str,strlen(random_str)))!=0) {
 		printk(KERN_INFO "ctr_drbg_init() failed!\n");
 		goto cleanup;
 	}

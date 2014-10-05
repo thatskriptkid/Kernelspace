@@ -2,6 +2,7 @@
 #include "aes.h"
 #include "entropy.h" 
 #include "ctr_drbg.h"
+#include "sha256.h"
 /* polarssl headers */
 
 #include "polarssl_kernel_support.h"
@@ -9,18 +10,30 @@
 #define SUCCESS 0
 #define KEY_LENGTH 32
 
+/* AES section */
+
 static 				  ctr_drbg_context ctr_drbg_ctx;
 static 				  entropy_context entropy;
-static unsigned char  key[32]; // hold 256-bits key
-static unsigned char  *random_str   = "wm82nZNB8FAfkqXMVD7G"; // our random string :)
-static unsigned char  init_vector[16] ="wm82nZNB8FAfkqXM"; //initialization vector
+static unsigned char  key[32]; 										 /* hold 256-bits key     */
+static unsigned char  *random_str  		= "wm82nZNB8FAfkqXMVD7G"; 	 /* our random string :)  */
+static unsigned char  init_vector[16]   = "wm82nZNB8FAfkqXM";		 /* initialization vector */
 static unsigned char  input[128];
 static unsigned char  output[128];
 static unsigned char  dec_output[128];
 
+/* AES section */
+
+/* SHA 256 section */ 
+
+static unsigned char  hash_str[256];
+static unsigned char  sha256_output[32];
+
+/* SHA 256 section */ 
+
 static int 			  AES_genkey(void);
 static int 			  AES_enc(void);
 static int			  AES_dec(void);
+static int 			  SHA256(void);
 
 static int __init finit(void)
 {
@@ -33,6 +46,9 @@ static int __init finit(void)
 		goto out;
 	}
 	
+	SHA256();
+	
+	/*
 	if(AES_genkey())
 		printk(KERN_INFO "AES_genkey() failed\n");
 	else
@@ -47,10 +63,33 @@ static int __init finit(void)
 		printk(KERN_INFO "AES_dec() failed\n");
 	else
 		printk(KERN_INFO "AES_dec() success!\n");
-		
+	*/
+	
 	out:
 		klog_release();
 		
+	return SUCCESS;
+}
+
+static int SHA256(void)
+{
+	unsigned char test[32]="ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+	
+	memset(sha256_output,0,32);
+	memset(hash_str,0,256);
+	
+	memcpy(hash_str,"abc",3);
+	
+	sha256(hash_str,256,sha256_output,0);
+	
+	printk(KERN_WARNING "%*phN",sha256_output);
+	
+	/*
+	if(!strcmp(test,sha256_output))
+		printk(KERN_WARNING "equal!\n");
+	else
+		printk(KERN_WARNING "not equal :(\n");
+	*/
 	return SUCCESS;
 }
 
@@ -133,7 +172,9 @@ static void __exit fexit(void)
 
 module_init(finit);
 module_exit(fexit);
-//traditionally in the end
+
+/* traditionally in the end */
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("thatskriptkid");
-MODULE_DESCRIPTION("module that encrypts data with 256-bit AES key");
+MODULE_DESCRIPTION("AES256 and SHA256 Polarssl realization");

@@ -9,6 +9,7 @@
 #define SUCCESS 0
 
 static 				  ctr_drbg_context ctr_drbg_ctx;
+static 				  ctr_drbg_context ctr_drbg_ctx_2;
 static 				  entropy_context entropy;
 static unsigned char  key[32]; // hold 256-bits key
 static const unsigned char 		 *pers = "wm82nZNB8FAfkqXMVD7G"; // our random string :)
@@ -59,8 +60,7 @@ static int __init 	  finit(void)
 static int AES_dec(void)
 {
 	//iv[16]="sabcdefghkasdsdd";
-	memset(iv,0,16);
-	memcpy(iv,"sabcdefghkasdsdd",16);
+	memcpy(iv,"wm82nZNB8FAfkqXM",16);
 	
 	memset(dec_output,0,128);
 	
@@ -89,7 +89,8 @@ static int AES_enc(void)
 	
 	//input[128]="Cottage out enabledwCottage out enablqwe";
 	
-	memcpy(input,"Cottage out enabledwCottage out enablqwe",40);
+	//memcpy(input,"Cottage out enabledwCottage out enablqwe",40);
+	memcpy(input,"abcdefghiklmnoplqrstabcdefghiklmnoplqrst",40);
 	
 	if(aes_setkey_enc(&ctr_drbg_ctx.aes_ctx,key,256)!=0) {
 		printk(KERN_WARNING "aes_setkey_enc() failed\n");

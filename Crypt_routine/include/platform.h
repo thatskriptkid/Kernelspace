@@ -33,7 +33,12 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-//#include <stdio.h>
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
+#else
+#include <stdio.h>
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {

@@ -37,16 +37,18 @@
 #if defined(POLARSSL_SHA256_C)
 
 #include "sha256.h"
-/*
+
 #if defined(POLARSSL_FS_IO) || defined(POLARSSL_SELF_TEST)
+#if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdio.h>
 #endif
-*/
+#endif
+
 #if defined(POLARSSL_PLATFORM_C)
 #include "platform.h"
-/*#else
+#else
 #define polarssl_printf printf
-*/
+
 #endif
 
 /* Implementation that should never be optimized out by the compiler */

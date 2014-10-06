@@ -32,14 +32,18 @@
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
-/*
+
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
+#else
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
 #include <basetsd.h>
 typedef UINT32 uint32_t;
 #else
 #include <inttypes.h>
 #endif
-*/
+#endif
+
 #define POLARSSL_ERR_SHA256_FILE_IO_ERROR              -0x0078  /**< Read/write error in file. */
 
 #if !defined(POLARSSL_SHA256_ALT)

@@ -29,15 +29,19 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
+#endif
+
 #if defined(POLARSSL_ENTROPY_C)
 
 #include "entropy.h"
 #include "entropy_poll.h"
-/*
+
 #if defined(POLARSSL_FS_IO)
 #include <stdio.h>
 #endif
-*/
+
 #if defined(POLARSSL_HAVEGE_C)
 #include "havege.h"
 #endif
@@ -436,10 +440,9 @@ int entropy_update_seed_file( entropy_context *ctx, const char *path )
 
 #if defined(POLARSSL_PLATFORM_C)
 #include "platform.h"
-/*
 #else
 #include <stdio.h>
-#define polarssl_printf     printf*/
+#define polarssl_printf     printf
 #endif
 
 /*

@@ -28,7 +28,7 @@
  *  http://csrc.nist.gov/encryption/aes/rijndael/Rijndael.pdf
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
-
+ 
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
 #else
@@ -47,10 +47,10 @@
 #include "aesni.h"
 #endif
 
-#if defined(POLARSSL_PLATFORM_C)
+#if defined(POLARSSL_PLATFORM_C) 
 #include "platform.h"
-/*#else
-#define polarssl_printf klog*/
+#else
+#define polarssl_printf printf
 #endif
 
 #if !defined(POLARSSL_AES_ALT)
@@ -941,7 +941,11 @@ int aes_crypt_cfb128( aes_context *ctx,
 /*
  * AES-CFB8 buffer encryption/decryption
  */
-//#include <stdio.h>
+ 
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <stdio.h>
+#endif
+
 int aes_crypt_cfb8( aes_context *ctx,
                        int mode,
                        size_t length,
@@ -1012,7 +1016,9 @@ int aes_crypt_ctr( aes_context *ctx,
 
 #if defined(POLARSSL_SELF_TEST)
 
-//#include <stdio.h>
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <stdio.h>
+#endif
 
 /*
  * AES test vectors from:

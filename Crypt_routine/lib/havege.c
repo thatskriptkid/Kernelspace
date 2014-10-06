@@ -36,6 +36,10 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
+#endif
+
 #if defined(POLARSSL_HAVEGE_C)
 
 #include "havege.h"

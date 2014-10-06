@@ -48,7 +48,6 @@ static int __init finit(void)
 	
 	SHA256();
 	
-	/*
 	if(AES_genkey())
 		printk(KERN_INFO "AES_genkey() failed\n");
 	else
@@ -63,7 +62,7 @@ static int __init finit(void)
 		printk(KERN_INFO "AES_dec() failed\n");
 	else
 		printk(KERN_INFO "AES_dec() success!\n");
-	*/
+	
 	
 	out:
 		klog_release();

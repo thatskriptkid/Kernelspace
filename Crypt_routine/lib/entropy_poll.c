@@ -29,6 +29,10 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
+#endif
+
 #if defined(POLARSSL_ENTROPY_C)
 
 #include "entropy.h"
@@ -48,10 +52,12 @@ tsk | 10.09
 #if !defined(_WIN32_WINNT)
 #define _WIN32_WINNT 0x0400
 #endif
-//#include <windows.h>
-//#include <wincrypt.h>
 
-/*
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <windows.h>
+#include <wincrypt.h>
+#endif
+
 int platform_entropy_poll( void *data, unsigned char *output, size_t len,
                            size_t *olen )
 {
@@ -73,11 +79,13 @@ int platform_entropy_poll( void *data, unsigned char *output, size_t len,
 
     return( 0 );
 }
- */
+ 
 #else /* _WIN32 && !EFIX64 && !EFI32 */
 
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <stdio.h>
+#endif
 
-//#include <stdio.h>
 
 int platform_entropy_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen )

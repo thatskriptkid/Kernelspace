@@ -29,7 +29,6 @@
  * memory footprint.
  */
  
-#include "polarssl_kernel_support.h"
 #include "platform.h"
 
 #ifndef POLARSSL_CONFIG_H
@@ -45,7 +44,18 @@
  * This section sets system specific settings.
  * \{
  */
-
+ 
+/**
+ * \def POLARSSL_LINUX_KERNEL
+ *
+ * The system uses linux kernel headers.
+ *
+ * Uncomment if you want to use Polarssl in linux kernel space.
+ * 
+ * by thatskriptkid
+ */
+#define POLARSSL_LINUX_KERNEL 
+ 
 /**
  * \def POLARSSL_HAVE_INT8
  *
@@ -53,7 +63,7 @@
  *
  * Uncomment if native integers are 8-bit wide.
  */
-//#define POLARSSL_HAVE_INT8
+#define POLARSSL_HAVE_INT8
 
 /**
  * \def POLARSSL_HAVE_INT16
@@ -679,7 +689,7 @@
  *
  * Enable functions that use the filesystem.
  */
-#define POLARSSL_FS_IO
+//#define POLARSSL_FS_IO
 
 /**
  * \def POLARSSL_NO_DEFAULT_ENTROPY_SOURCES

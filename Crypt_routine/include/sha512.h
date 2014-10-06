@@ -32,7 +32,11 @@
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
-/*
+
+
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
+#else
 #if defined(_MSC_VER) || defined(__WATCOMC__)
   #define UL64(x) x##ui64
   typedef unsigned __int64 uint64_t;
@@ -40,7 +44,8 @@
   #include <inttypes.h>
   #define UL64(x) x##ULL
 #endif
-*/
+#endif
+
 #define POLARSSL_ERR_SHA512_FILE_IO_ERROR              -0x007A  /**< Read/write error in file. */
 
 #if !defined(POLARSSL_SHA512_ALT)

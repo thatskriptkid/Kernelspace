@@ -34,10 +34,18 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
+#endif
+
 #if defined(POLARSSL_AESNI_C)
 
 #include "aesni.h"
-//#include <stdio.h>
+
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <stdio.h>
+#endif
+
 
 #if defined(POLARSSL_HAVE_X86_64)
 

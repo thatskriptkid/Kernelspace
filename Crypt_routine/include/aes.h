@@ -32,14 +32,19 @@
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
-/*
+
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
+#endif
+
+#if !defined(POLARSSL_LINUX_KERNEL)
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
 #include <basetsd.h>
 typedef UINT32 uint32_t;
 #else
 #include <inttypes.h>
 #endif
-*/
+#endif
 
 /* padlock.c and aesni.c rely on these values! */
 #define AES_ENCRYPT     1

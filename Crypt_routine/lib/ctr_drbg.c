@@ -34,16 +34,20 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#if defined(POLARSSL_CTR_DRBG_C)
-#include "ctr_drbg.h"
-#if defined(POLARSSL_FS_IO)
-//#include <stdio.h>
+#if defined(POLARSSL_LINUX_KERNEL)
+#include "polarssl_kernel_support.h"
 #endif
 
-#if defined(POLARSSL_PLATFORM_C) /* Always defined! thatskriptkid, kernel does not have malloc,printf,free*/
+#if defined(POLARSSL_CTR_DRBG_C)
+#include "ctr_drbg.h"
+#if defined(POLARSSL_FS_IO) 
+#include <stdio.h>
+#endif
+
+#if defined(POLARSSL_PLATFORM_C) /* Always defined! Kernel does not have malloc,printf,free (thatskriptkid) */
 #include "platform.h"
 #else
-//#define polarssl_printf printf
+#define polarssl_printf printf
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
@@ -391,8 +395,8 @@ ctr_drbg_update(ctx,buf,n);
 return(ctr_drbg_write_seed_file(ctx,path));
 }
 #endif /* POLARSSL_FS_IO */
-#if defined(POLARSSL_SELF_TEST)
-//#include <stdio.h>
+#if defined(POLARSSL_SELF_TEST) && !defined(POLARSSL_LINUX_KERNEL)
+#include <stdio.h>
 static unsigned char entropy_source_pr[96] =
 { 0xc1, 0x80, 0x81, 0xa6, 0x5d, 0x44, 0x02, 0x16,
 0x19, 0xb3, 0xf1, 0x80, 0xb1, 0xc9, 0x20, 0x02,

@@ -27,8 +27,11 @@
 #ifndef POLARSSL_NET_H
 #define POLARSSL_NET_H
 
-//#include <string.h>
+#if defined(POLARSSL_LINUX_KERNEL)
 #include "polarssl_kernel_support.h"
+#else
+#include <string.h>
+#endif
 
 #define POLARSSL_ERR_NET_UNKNOWN_HOST                      -0x0056  /**< Failed to get an IP address for the given hostname. */
 #define POLARSSL_ERR_NET_SOCKET_FAILED                     -0x0042  /**< Failed to open a socket. */

@@ -13,7 +13,6 @@
 #include <linux/types.h>    //umode_t
 #include <linux/fs.h>
 #include <asm/segment.h>
-#include <linux/types.h>
 
 /* Linux Kernel headers */ 
 

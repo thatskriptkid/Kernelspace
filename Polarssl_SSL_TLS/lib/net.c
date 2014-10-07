@@ -41,21 +41,26 @@
 #undef _WIN32_WINNT
 #endif
 /* Enables getaddrinfo() & Co */
-/*#define _WIN32_WINNT 0x0501
+
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <winsock2.h>
+#include <windows.h>
+#endif
+
+#if !defined(POLARSSL_LINUX_KERNEL)
+#define _WIN32_WINNT 0x0501
 #include <ws2tcpip.h>
 #endif
 
-#include <winsock2.h>
-#include <windows.h>
-
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(POLARSSL_LINUX_KERNEL)
 #if defined(_WIN32_WCE)
 #pragma comment( lib, "ws2.lib" )
 #else
 #pragma comment( lib, "ws2_32.lib" )
 #endif
 #endif
-*/  /* _MSC_VER */
+
+  /* _MSC_VER */
 
 #define read(fd,buf,len)        recv(fd,(char*)buf,(int) len,0)
 #define write(fd,buf,len)       send(fd,(char*)buf,(int) len,0)
@@ -65,10 +70,13 @@ static int wsa_init_done = 0;
 
 #else /* ( _WIN32 || _WIN32_WCE ) && !EFIX64 && !EFI32 */
 
+#if !defined(POLARSSL_LINUX_KERNEL)
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#endif
+
 #if defined(POLARSSL_HAVE_TIME)
 #include <sys/time.h>
 #endif

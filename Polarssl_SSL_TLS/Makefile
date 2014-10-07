@@ -2,7 +2,7 @@ obj-m := SSL_client.o
 
 ccflags-y := -I$(src)/include -g3 -Wall -msse -mmmx 
 
-cr-y := SSL_client.o lib/klog.o lib/net.o  
+cr-y := SSL_client.o lib/ksocket.o lib/platform.o aes.o entropy.o ctr_drbg.o lib/klog.o lib/net.o  
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

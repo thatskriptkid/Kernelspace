@@ -102,8 +102,10 @@ static int wsa_init_done = 0;
 
 #endif /* ( _WIN32 || _WIN32_WCE ) && !EFIX64 && !EFI32 */
 
+#if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdlib.h>
 #include <stdio.h>
+#endif
 
 #if defined(_MSC_VER) && !defined  snprintf && !defined(EFIX64) && \
     !defined(EFI32)

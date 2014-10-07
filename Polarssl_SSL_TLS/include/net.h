@@ -27,6 +27,12 @@
 #ifndef POLARSSL_NET_H
 #define POLARSSL_NET_H
 
+#if !defined(POLARSSL_CONFIG_FILE)
+#include "config.h"
+#else
+#include POLARSSL_CONFIG_FILE
+#endif
+
 #if defined(POLARSSL_LINUX_KERNEL)
 #include "polarssl_kernel_support.h"
 #else

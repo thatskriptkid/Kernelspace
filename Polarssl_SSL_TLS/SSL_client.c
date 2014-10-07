@@ -1,20 +1,33 @@
-#include "net.h"
-//#include "ssl.h"
+/*#include "ssl.h"
+#include "entropy.h"
+#include "ctr_drbg.h"
+#include "certs.h"
+#include "x509.h"
+#include "error.h"
+#include "debug.h"
+*/
+
+#if !defined(POLARSSL_CONFIG_FILE)
+#include "config.h"
+#else
+#include POLARSSL_CONFIG_FILE
+#endif
+#include "ksocket.h"
 
 #define SUCCESS 0
 #define REQUEST "GET /stefan/testfile.txt HTTP/1.1\r\nHost: thunked.org\r\n\r\n"
 
-
+static struct socket *sockp;
+__u32 		  ip;
+int 		  port;
+    
 static int __init finit(void)
 {
-	int sock;
-	int ret;
-	
-	if((ret=net_connect(&sock,"thunked.org",443))!=0)
-		printk(KERN_WARNING "net_connect() failed\n");
+	ksock_create(&sockp,ip,port);
+	/*	printk(KERN_WARNING "ksock_create() failed\n");
 	else
-		printk(KERN_WARNING "net_connect() success\n");
-		
+		printk(KERN_WARNING "ksock_create() success\n");
+		*/
 	return SUCCESS;
 }
 
@@ -28,4 +41,4 @@ module_exit(fexit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("thatskriptkid");
-MODULE_DESCRIPTION("SSL client");
+MODULE_DESCRIPTION("SSL client using Polarssl library");

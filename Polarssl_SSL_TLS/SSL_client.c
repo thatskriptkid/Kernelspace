@@ -7,8 +7,9 @@
 #include "debug.h"
 */
 
-MODULE_LICENSE("GPL");
+#include "polarssl_kernel_support.h"
 
+#include "ksocket.h"
 
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
@@ -16,9 +17,6 @@ MODULE_LICENSE("GPL");
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#include "polarssl_kernel_support.h"
-
-#include "ksocket.h"
 
 #define SUCCESS 0
 #define REQUEST "GET /stefan/testfile.txt HTTP/1.1\r\nHost: thunked.org\r\n\r\n"
@@ -39,6 +37,10 @@ static int __init finit(void)
 		printk(KERN_ERR "klog_init failed with err=%d", error);
 		goto out;
 	}
+	else 
+		printk(KERN_ERR "klog_init success!", error);
+	
+	klog(KL_DBG,"hit!\n");
 	
 	if(ksock_create(&sockp,ip,port))
 		printk(KERN_WARNING "ksock_create() failed\n");
@@ -61,6 +63,7 @@ static void __exit fexit(void)
 module_init(finit);
 module_exit(fexit);
 
-
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("thatskriptkid");
 MODULE_DESCRIPTION("SSL client using Polarssl library");
+

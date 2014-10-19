@@ -18,14 +18,16 @@
 #include "ksocket.h"
 #endif
 
+#include <linux/inet.h>
+#include <linux/byteorder/generic.h> /* Generic Byte-reordering support */
+
 #define SUCCESS 0
 #define REQUEST "GET /stefan/testfile.txt HTTP/1.1\r\nHost: thunked.org\r\n\r\n"
 
-static struct sockaddr_in  srv_addr;
 static struct socket 	  *sockp = NULL;
 static __u32 		  	   ip;
 static int			  	   port;
-    
+
 static int __init finit(void)
 {
 	int error = -EINVAL;
@@ -37,33 +39,32 @@ static int __init finit(void)
 		goto out;
 	}
 	else 
-		printk(KERN_ERR "klog_init success!", error);
-	
-	if(ksock_create(&sockp,0,0)) //create socket without binding
-		printk(KERN_WARNING "ksock_create() failed\n");
-	else
-		printk(KERN_WARNING "ksock_create() success\n");
+		printk(KERN_ERR "klog_init success!");
 	
 	
-	srv_addr.sin_family=AF_INET;
-	memset(&(srv_addr.sin_zero),0,8);
-		
-	if((inet_aton("127.0.0.1",&(srv_addr.sin_addr.s_addr))) == 0) {
-		printk(KERN_WARNING "inet_aton() failed\n");
+	if(ksock_create(&sockp,0,0)) {//create socket without binding
+		printk(KERN_ERR "ksock_create() failed\n");
+		goto out_sock;
 	}
-	
-	ip = srv_addr.sin_addr.s_addr;
-	
-	if(ksock_connect(&sockp,0,0,ip,8888))
-		printk(KERN_WARNING "ksock_connect() failed\n");
-	else
-		printk(KERN_WARNING "ksock_connect() success\n");
+	else 
+		printk(KERN_ERR "ksock_create() success\n");
 		
+	ip = ntohl(in_aton("127.0.0.1"));
+	port =9900;
+	
+	if(ksock_connect(&sockp,0,0,ip,port)) {
+		printk(KERN_ERR "ksock_connect() failed\n");
+		goto out_sock;
+	}
+	else 
+		printk(KERN_ERR "ksock_connect() success\n");
+	
+	
+	out_sock:
+		ksock_release(sockp);	
 	out:
 		klog_release();
 		
-	ksock_release(sockp);
-	
 	return SUCCESS;
 }
 
@@ -78,4 +79,5 @@ module_exit(fexit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("thatskriptkid");
 MODULE_DESCRIPTION("SSL client using Polarssl library");
+
 

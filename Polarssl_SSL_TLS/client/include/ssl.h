@@ -77,7 +77,7 @@
 #include "zlib.h"
 #endif
 
-#if defined(POLARSSL_HAVE_TIME)
+#if defined(POLARSSL_HAVE_TIME) && !defined(POLARSSL_LINUX_KERNEL)
 #include <time.h>
 #endif
 

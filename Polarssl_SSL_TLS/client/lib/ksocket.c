@@ -123,7 +123,7 @@ int ksock_connect(struct socket **sockp, __u32 local_ip, int local_port,
 	srvaddr.sin_family = AF_INET;
 	srvaddr.sin_port = htons(peer_port);
 	srvaddr.sin_addr.s_addr = htonl(peer_ip);
-
+	
 	error = sock->ops->connect(sock, (struct sockaddr *)&srvaddr,
 			sizeof(srvaddr), 0);
 	if (error) {

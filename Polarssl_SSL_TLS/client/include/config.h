@@ -874,7 +874,7 @@
  *
  * Comment this macro to disable support for SSL 3.0
  */
-#define POLARSSL_SSL_PROTO_SSL3
+//#define POLARSSL_SSL_PROTO_SSL3
 
 /**
  * \def POLARSSL_SSL_PROTO_TLS1
@@ -886,7 +886,7 @@
  *
  * Comment this macro to disable support for TLS 1.0
  */
-#define POLARSSL_SSL_PROTO_TLS1
+//#define POLARSSL_SSL_PROTO_TLS1
 
 /**
  * \def POLARSSL_SSL_PROTO_TLS1_1
@@ -898,7 +898,7 @@
  *
  * Comment this macro to disable support for TLS 1.1
  */
-#define POLARSSL_SSL_PROTO_TLS1_1
+//#define POLARSSL_SSL_PROTO_TLS1_1
 
 /**
  * \def POLARSSL_SSL_PROTO_TLS1_2
@@ -1597,7 +1597,7 @@
  * This module is required for SSL/TLS and X.509.
  * PEM_PARSE uses MD5 for decrypting encrypted keys.
  */
-#define POLARSSL_MD5_C
+//#define POLARSSL_MD5_C
 
 /**
  * \def POLARSSL_MEMORY_C
@@ -1896,7 +1896,7 @@
  *
  * This module adds support for SHA-384 and SHA-512.
  */
-#define POLARSSL_SHA512_C
+//#define POLARSSL_SHA512_C
 
 /**
  * \def POLARSSL_SSL_CACHE_C

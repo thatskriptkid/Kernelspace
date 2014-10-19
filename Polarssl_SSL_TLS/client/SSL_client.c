@@ -35,6 +35,31 @@ static ctr_drbg_context    ctr_drbg_ctx;
 static entropy_context     entropy;
 static unsigned char      *random_str = "wm82nZNB8FAfkqXMVD7G"; 	 /* our random string :)  */
 
+static void ssl_prep(void);
+
+static void ssl_prep(void)
+{
+	int error;
+	
+	entropy_init(&entropy);
+
+	if((error=ctr_drbg_init(&ctr_drbg_ctx,entropy_func,&entropy,(unsigned char*) random_str,strlen(random_str)))!=0) {
+		printk(KERN_ERR "ctr_drbg_init() failed!\n");
+		goto out_ctr_drbg;
+	}
+	else {
+		printk(KERN_ERR "ctr_drbg_init() success!\n");
+	}
+	
+	memset( &ssl_ctx, 0, sizeof( ssl_context ) );
+	
+	if( ( error = ssl_init(&ssl_ctx) ) != 0 )
+		printk(KERN_ERR " failed\n  ! ssl_init returned %d\n\n", error );
+     
+	out_ctr_drbg:
+		ctr_drbg_free(&ctr_drbg_ctx);
+}
+
 static int __init finit(void)
 {
 	int error = -EINVAL;
@@ -71,20 +96,9 @@ static int __init finit(void)
 	
 	printk(KERN_ERR "ksock_write error = %d",error);
 	
-	entropy_init(&entropy);
-
-	if((error=ctr_drbg_init(&ctr_drbg_ctx,entropy_func,&entropy,(unsigned char*) random_str,strlen(random_str)))!=0) {
-		printk(KERN_ERR "ctr_drbg_init() failed!\n");
-		goto out_ctr_drbg;
-	}
-	else {
-		printk(KERN_ERR "ctr_drbg_init() success!\n");
-	}
+	ssl_prep();
 	
-	memset( &ssl_ctx, 0, sizeof( ssl_context ) );
 	
-	out_ctr_drbg:
-		ctr_drbg_free(&ctr_drbg_ctx);
 	out_sock:
 		ksock_release(sockp);	
 	out:

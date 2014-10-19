@@ -40,13 +40,19 @@ static int __init finit(void)
 	else 
 		printk(KERN_ERR "klog_init success!", error);
 	
-	klog(KL_DBG,"hit!\n");
+	
+	/*
+	if(ksock_create(&sockp,ip,port))
+		printk(KERN_WARNING "ksock_create() failed\n");
+	else
+		printk(KERN_WARNING "ksock_create() success\n");
+	*/
 	
 	if(ksock_create(&sockp,ip,port))
 		printk(KERN_WARNING "ksock_create() failed\n");
 	else
 		printk(KERN_WARNING "ksock_create() success\n");
-	
+		
 	out:
 		klog_release();
 		

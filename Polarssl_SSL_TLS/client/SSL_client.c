@@ -1,6 +1,5 @@
-/*#include "ssl.h"
-#include "entropy.h"
-#include "ctr_drbg.h"
+/*
+
 #include "certs.h"
 #include "x509.h"
 #include "error.h"
@@ -18,17 +17,23 @@
 #include "ksocket.h"
 #endif
 
+#include "entropy.h"
+#include "ctr_drbg.h"
+#include "ssl.h"
 #include <linux/inet.h>
 #include <linux/byteorder/generic.h> /* Generic Byte-reordering support */
 
 #define SUCCESS 0
-#define REQUEST "GET /stefan/testfile.txt HTTP/1.1\r\nHost: thunked.org\r\n\r\n"
 
 static struct socket 	  *sockp = NULL;
 static __u32 		  	   ip;
 static int			  	   port;
-static char				  *buff="1234567890";
+static char				  *buff = "1234567890";
 static int				  *pw;
+static ssl_context 		   ssl_ctx;
+static ctr_drbg_context    ctr_drbg_ctx;
+static entropy_context     entropy;
+static unsigned char      *random_str = "wm82nZNB8FAfkqXMVD7G"; 	 /* our random string :)  */
 
 static int __init finit(void)
 {
@@ -58,13 +63,28 @@ static int __init finit(void)
 		printk(KERN_ERR "ksock_connect() failed\n");
 		goto out_sock;
 	}
-	else 
+	else {
 		printk(KERN_ERR "ksock_connect() success\n");
+	}
 	
 	error = ksock_write_timeout(sockp,buff, 10,1, pw);
 	
 	printk(KERN_ERR "ksock_write error = %d",error);
 	
+	entropy_init(&entropy);
+
+	if((error=ctr_drbg_init(&ctr_drbg_ctx,entropy_func,&entropy,(unsigned char*) random_str,strlen(random_str)))!=0) {
+		printk(KERN_ERR "ctr_drbg_init() failed!\n");
+		goto out_ctr_drbg;
+	}
+	else {
+		printk(KERN_ERR "ctr_drbg_init() success!\n");
+	}
+	
+	memset( &ssl_ctx, 0, sizeof( ssl_context ) );
+	
+	out_ctr_drbg:
+		ctr_drbg_free(&ctr_drbg_ctx);
 	out_sock:
 		ksock_release(sockp);	
 	out:

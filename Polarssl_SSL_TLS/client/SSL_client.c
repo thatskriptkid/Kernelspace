@@ -27,6 +27,8 @@
 static struct socket 	  *sockp = NULL;
 static __u32 		  	   ip;
 static int			  	   port;
+static char				  *buff="1234567890";
+static int				  *pw;
 
 static int __init finit(void)
 {
@@ -59,6 +61,9 @@ static int __init finit(void)
 	else 
 		printk(KERN_ERR "ksock_connect() success\n");
 	
+	error = ksock_write_timeout(sockp,buff, 10,1, pw);
+	
+	printk(KERN_ERR "ksock_write error = %d",error);
 	
 	out_sock:
 		ksock_release(sockp);	

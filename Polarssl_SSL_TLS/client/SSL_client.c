@@ -21,11 +21,10 @@
 #define SUCCESS 0
 #define REQUEST "GET /stefan/testfile.txt HTTP/1.1\r\nHost: thunked.org\r\n\r\n"
 
-
-
-static struct socket *sockp = NULL;
-static __u32 		  ip;
-static int 		  port;
+static struct sockaddr_in  srv_addr;
+static struct socket 	  *sockp = NULL;
+static __u32 		  	   ip;
+static int			  	   port;
     
 static int __init finit(void)
 {
@@ -40,18 +39,25 @@ static int __init finit(void)
 	else 
 		printk(KERN_ERR "klog_init success!", error);
 	
-	
-	/*
-	if(ksock_create(&sockp,ip,port))
+	if(ksock_create(&sockp,0,0)) //create socket without binding
 		printk(KERN_WARNING "ksock_create() failed\n");
 	else
 		printk(KERN_WARNING "ksock_create() success\n");
-	*/
 	
-	if(ksock_create(&sockp,ip,port))
-		printk(KERN_WARNING "ksock_create() failed\n");
+	
+	srv_addr.sin_family=AF_INET;
+	memset(&(srv_addr.sin_zero),0,8);
+		
+	if((inet_aton("127.0.0.1",&(srv_addr.sin_addr.s_addr))) == 0) {
+		printk(KERN_WARNING "inet_aton() failed\n");
+	}
+	
+	ip = srv_addr.sin_addr.s_addr;
+	
+	if(ksock_connect(&sockp,0,0,ip,8888))
+		printk(KERN_WARNING "ksock_connect() failed\n");
 	else
-		printk(KERN_WARNING "ksock_create() success\n");
+		printk(KERN_WARNING "ksock_connect() success\n");
 		
 	out:
 		klog_release();

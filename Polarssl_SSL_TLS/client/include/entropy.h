@@ -42,7 +42,7 @@
 #include "sha256.h"
 #endif
 #endif
-/*
+
 #if defined(POLARSSL_THREADING_C)
 #include "threading.h"
 #endif
@@ -50,7 +50,7 @@
 #if defined(POLARSSL_HAVEGE_C)
 #include "havege.h"
 #endif
-*/
+
 #define POLARSSL_ERR_ENTROPY_SOURCE_FAILED                 -0x003C  /**< Critical entropy source failure. */
 #define POLARSSL_ERR_ENTROPY_MAX_SOURCES                   -0x003E  /**< No more sources can be added. */
 #define POLARSSL_ERR_ENTROPY_NO_SOURCES_DEFINED            -0x0040  /**< No sources have been added to poll. */

@@ -1973,7 +1973,7 @@
  *
  * Enable this layer to allow use of mutexes within PolarSSL
  */
-//#define POLARSSL_THREADING_C
+#define POLARSSL_THREADING_C
 
 /**
  * \def POLARSSL_TIMING_C

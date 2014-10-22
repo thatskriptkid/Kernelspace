@@ -192,8 +192,8 @@
 #error "POLARSSL_PKCS11_C defined, but not all prerequisites"
 #endif
 
-#if defined(POLARSSL_RSA_C) && ( !defined(POLARSSL_BIGNUM_C) ||         \
-    !defined(POLARSSL_OID_C) )
+#if defined(POLARSSL_RSA_C) && !defined(POLARSSL_BIGNUM_C) /* ||         \
+    !defined(POLARSSL_OID_C) )   */
 #error "POLARSSL_RSA_C defined, but not all prerequisites"
 #endif
 
@@ -226,8 +226,8 @@
 #error "POLARSSL_SSL_CLI_C defined, but not all prerequisites"
 #endif
 
-#if defined(POLARSSL_SSL_TLS_C) && ( !defined(POLARSSL_CIPHER_C) ||     \
-    !defined(POLARSSL_MD_C) )
+#if defined(POLARSSL_SSL_TLS_C) &&  !defined(POLARSSL_CIPHER_C) /*||     \
+   !defined(POLARSSL_MD_C) ) */
 #error "POLARSSL_SSL_TLS_C defined, but not all prerequisites"
 #endif
 
@@ -292,13 +292,13 @@
 #endif
 
 #if defined(POLARSSL_X509_USE_C) && ( !defined(POLARSSL_BIGNUM_C) ||  \
-    !defined(POLARSSL_OID_C) || !defined(POLARSSL_ASN1_PARSE_C) ||      \
+    /*!defined(POLARSSL_OID_C) ||*/ !defined(POLARSSL_ASN1_PARSE_C) ||      \
     !defined(POLARSSL_PK_PARSE_C) )
 #error "POLARSSL_X509_USE_C defined, but not all prerequisites"
 #endif
 
 #if defined(POLARSSL_X509_CREATE_C) && ( !defined(POLARSSL_BIGNUM_C) ||  \
-    !defined(POLARSSL_OID_C) || !defined(POLARSSL_ASN1_WRITE_C) ||       \
+   /* !defined(POLARSSL_OID_C) || */!defined(POLARSSL_ASN1_WRITE_C) ||       \
     !defined(POLARSSL_PK_WRITE_C) )
 #error "POLARSSL_X509_CREATE_C defined, but not all prerequisites"
 #endif

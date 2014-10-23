@@ -144,7 +144,7 @@
  *
  * Enable this layer to allow use of alternative memory allocators.
  */
-//#define POLARSSL_PLATFORM_MEMORY
+#define POLARSSL_PLATFORM_MEMORY
 
 /**
  * \def POLARSSL_PLATFORM_NO_STD_FUNCTIONS
@@ -1047,7 +1047,7 @@
  *
  * Comment to skip extendedKeyUsage checking for certificates.
  */
-#define POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE
+//#define POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE
 
 /**
  * \def POLARSSL_X509_RSASSA_PSS_SUPPORT

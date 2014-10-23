@@ -12,6 +12,8 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
+#include "platform.h"
+
 #if defined(POLARSSL_LINUX_KERNEL)
 #include "polarssl_kernel_support.h"
 #include "ksocket.h"
@@ -25,6 +27,7 @@
 #include <linux/byteorder/generic.h> /* Generic Byte-reordering support */
 
 #define SUCCESS 0
+
 
 static struct socket 	  *sockp = NULL;
 static __u32 		  	   ip;
@@ -74,6 +77,7 @@ static int __init finit(void)
 	else 
 		printk(KERN_ERR "klog_init success!");
 	
+	platform_set_malloc_free(&kmalloc,&kfree);
 	
 	if(ksock_create(&sockp,0,0)) {//create socket without binding
 		printk(KERN_ERR "ksock_create() failed\n");

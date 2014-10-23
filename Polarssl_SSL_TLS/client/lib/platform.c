@@ -57,8 +57,8 @@ static void platform_free_uninit( void *ptr )
 void * (*polarssl_malloc)( size_t ) = POLARSSL_PLATFORM_STD_MALLOC;
 void (*polarssl_free)( void * )     = POLARSSL_PLATFORM_STD_FREE;
 
-int platform_set_malloc_free( void * (*malloc_func)( size_t ),
-                              void (*free_func)( void * ) )
+int platform_set_malloc_free( void * (*malloc_func)( size_t ,gfp_t),
+                              void (*free_func)( const void * ) )
 {
     polarssl_malloc = malloc_func;
     polarssl_free = free_func;

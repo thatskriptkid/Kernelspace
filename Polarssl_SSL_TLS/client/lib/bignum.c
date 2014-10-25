@@ -562,7 +562,7 @@ cleanup:
 }
 
 #if defined(POLARSSL_FS_IO)
-#if !defined(POALRSSL_LINUX_KERNEL)
+#if !defined(POLARSSL_LINUX_KERNEL)
 /*
  * Read X from an opened file
  */

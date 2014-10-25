@@ -33,12 +33,9 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#if defined(POLARSSL_LINUX_KERNEL)
-#include "polarssl_kernel_support.h"
-#else
+#if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdio.h>
 #endif
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,27 +48,26 @@ extern "C" {
  * Either change them in config.h or define them on the compiler command line.
  * \{
  */
-/*
+
 #if !defined(POLARSSL_PLATFORM_NO_STD_FUNCTIONS)
 #include <stdlib.h>
-
 #if !defined(POLARSSL_PLATFORM_STD_PRINTF)
-#define POLARSSL_PLATFORM_STD_PRINTF   printf */ /**< Default printf to use  */
-/*#endif
+#define POLARSSL_PLATFORM_STD_PRINTF   printf /**< Default printf to use  */
+#endif
 #if !defined(POLARSSL_PLATFORM_STD_FPRINTF)
-#define POLARSSL_PLATFORM_STD_FPRINTF fprintf */ /**< Default fprintf to use */
-/*#endif
+#define POLARSSL_PLATFORM_STD_FPRINTF fprintf /**< Default fprintf to use */
+#endif
 #if !defined(POLARSSL_PLATFORM_STD_MALLOC)
-#define POLARSSL_PLATFORM_STD_MALLOC   malloc *//**< Default allocator to use */
-/*#endif
+#define POLARSSL_PLATFORM_STD_MALLOC   malloc /**< Default allocator to use */
+#endif
 #if !defined(POLARSSL_PLATFORM_STD_FREE)
-#define POLARSSL_PLATFORM_STD_FREE       free *//**< Default free to use */
-/*#endif
-#else*/ /* POLARSSL_PLATFORM_NO_STD_FUNCTIONS */
-/*#if defined(POLARSSL_PLATFORM_STD_MEM_HDR)
+#define POLARSSL_PLATFORM_STD_FREE       free /**< Default free to use */
+#endif
+#else /* POLARSSL_PLATFORM_NO_STD_FUNCTIONS */
+#if defined(POLARSSL_PLATFORM_STD_MEM_HDR)
 #include POLARSSL_PLATFORM_STD_MEM_HDR
 #endif
-#endif*/ /* POLARSSL_PLATFORM_NO_STD_FUNCTIONS */
+#endif /* POLARSSL_PLATFORM_NO_STD_FUNCTIONS */
 
 /* \} name SECTION: Module settings */
 
@@ -79,6 +75,7 @@ extern "C" {
  * The function pointers for malloc and free
  */
 #if defined(POLARSSL_PLATFORM_MEMORY)
+#if !defined(POLARSSL_LINUX_KERNEL)
 extern void * (*polarssl_malloc)( size_t len );
 extern void (*polarssl_free)( void *ptr );
 
@@ -90,18 +87,27 @@ extern void (*polarssl_free)( void *ptr );
  *
  * \return              0 if successful
  */
-int platform_set_malloc_free( void * (*malloc_func)( size_t,gfp_t),
-                              void (*free_func)( const void * ) );
+int platform_set_malloc_free( void * (*malloc_func)( size_t ),
+                              void (*free_func)( void * ) );
+#else
+extern void * (*polarssl_malloc)( size_t len,gfp_t flags);
+extern void (*polarssl_free)( const void *ptr );
+int platform_set_malloc_free( void * (*malloc_func)( size_t,gfp_t ),
+                              void (*free_func)(const void * ) );
+#endif
 #else /* POLARSSL_PLATFORM_ENTROPY */
 #define polarssl_malloc     malloc
 #define polarssl_free       free
+
+
 #endif /* POLARSSL_PLATFORM_ENTROPY */
 
 /*
  * The function pointers for printf
  */
 #if defined(POLARSSL_PLATFORM_PRINTF_ALT)
-//extern int (*polarssl_printf)( const char *format, ... );
+#if !defined(POLARSSL_LINUX_KERNEL)
+extern int (*polarssl_printf)( const char *format, ... );
 
 /**
  * \brief   Set your own printf function pointer
@@ -110,11 +116,13 @@ int platform_set_malloc_free( void * (*malloc_func)( size_t,gfp_t),
  *
  * \return              0
  */
-//int platform_set_printf( int (*printf_func)( const char *, ... ) );
-//int platform_set_printf(void);
-//#else /* POLARSSL_PLATFORM_PRINTF_ALT */
-//#define polarssl_printf     printf
-
+int platform_set_printf( int (*printf_func)( const char *, ... ) );
+#else
+extern int (*polarssl_printf)(int loglevel, const char *format, ... );
+int platform_set_printf( void (*printf_func)(int, const char *, ... ) );
+#endif
+#else /* POLARSSL_PLATFORM_PRINTF_ALT */
+#define polarssl_printf     printf
 #endif /* POLARSSL_PLATFORM_PRINTF_ALT */
 
 /*

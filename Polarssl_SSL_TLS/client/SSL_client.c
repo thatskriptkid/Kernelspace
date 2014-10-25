@@ -4,19 +4,19 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#include "platform.h"
-
 #if defined(POLARSSL_LINUX_KERNEL)
 #include "polarssl_kernel_support.h"
 #include "ksocket.h"
+#include <linux/inet.h>
+#include <linux/byteorder/generic.h> /* Generic Byte-reordering support */
 #endif
 
+#include "platform.h"
 #include "entropy.h"
 #include "ctr_drbg.h"
 #include "ssl.h"
 
-#include <linux/inet.h>
-#include <linux/byteorder/generic.h> /* Generic Byte-reordering support */
+
 
 #define SUCCESS 0
 
@@ -37,7 +37,7 @@ static void set_standart_func(void);
 static void set_standart_func(void)
 {
 	platform_set_malloc_free(&kmalloc,&kfree);
-
+	platform_set_printf(&klog);
 }
 
 static void ssl_prep(void)

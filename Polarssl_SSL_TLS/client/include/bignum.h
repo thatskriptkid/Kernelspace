@@ -375,6 +375,7 @@ int mpi_read_string( mpi *X, int radix, const char *s );
 int mpi_write_string( const mpi *X, int radix, char *s, size_t *slen );
 
 #if defined(POLARSSL_FS_IO)
+#if !defined(POLARSSL_LINUX_KERNEL)
 /**
  * \brief          Read X from an opened file
  *
@@ -401,6 +402,10 @@ int mpi_read_file( mpi *X, int radix, FILE *fin );
  * \note           Set fout == NULL to print X on the console.
  */
 int mpi_write_file( const char *p, const mpi *X, int radix, FILE *fout );
+#else 
+int mpi_read_file( mpi *X, int radix, struct file *fin );
+int mpi_write_file( const char *p, const mpi *X, int radix, struct file *fout );
+#endif /* POLARSSL_LINUX_KERNEL */
 #endif /* POLARSSL_FS_IO */
 
 /**

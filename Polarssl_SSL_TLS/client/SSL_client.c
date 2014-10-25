@@ -1,11 +1,3 @@
-/*
-
-#include "certs.h"
-#include "x509.h"
-#include "error.h"
-#include "debug.h"
-*/
-
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
 #else
@@ -40,6 +32,13 @@ static entropy_context     entropy;
 static unsigned char      *random_str = "wm82nZNB8FAfkqXMVD7G"; 	 /* our random string :)  */
 
 static void ssl_prep(void);
+static void set_standart_func(void);
+
+static void set_standart_func(void)
+{
+	platform_set_malloc_free(&kmalloc,&kfree);
+
+}
 
 static void ssl_prep(void)
 {
@@ -77,7 +76,7 @@ static int __init finit(void)
 	else 
 		printk(KERN_ERR "klog_init success!");
 	
-	platform_set_malloc_free(&kmalloc,&kfree);
+	set_standart_func();
 	
 	if(ksock_create(&sockp,0,0)) {//create socket without binding
 		printk(KERN_ERR "ksock_create() failed\n");

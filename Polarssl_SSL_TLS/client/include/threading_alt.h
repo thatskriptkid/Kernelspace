@@ -5,6 +5,7 @@
 
 #if defined(POLARSLL_LINUX_KERNEL)
 #include <linux/mutex.h>
-#endif
 
+#endif
 typedef struct mutex threading_mutex_t;
+

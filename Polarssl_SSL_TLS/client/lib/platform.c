@@ -29,7 +29,6 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-
 #if defined(POLARSSL_PLATFORM_C)
 
 #include "platform.h"
@@ -54,16 +53,30 @@ static void platform_free_uninit( void *ptr )
 #define POLARSSL_PLATFORM_STD_FREE     platform_free_uninit
 #endif /* !POLARSSL_PLATFORM_STD_FREE */
 
+#if !defined(POLARSSL_LINUX_KERNEL)
 void * (*polarssl_malloc)( size_t ) = POLARSSL_PLATFORM_STD_MALLOC;
 void (*polarssl_free)( void * )     = POLARSSL_PLATFORM_STD_FREE;
 
-int platform_set_malloc_free( void * (*malloc_func)( size_t ,gfp_t),
+int platform_set_malloc_free( void * (*malloc_func)( size_t ),
+                              void (*free_func)( void * ) )
+{
+    polarssl_malloc = malloc_func;
+    polarssl_free = free_func;
+    return( 0 );
+}
+#else
+void * (*polarssl_malloc)( size_t ) = POLARSSL_PLATFORM_STD_MALLOC;
+void (*polarssl_free)( void * )     = POLARSSL_PLATFORM_STD_FREE;
+
+int platform_set_malloc_free( void * (*malloc_func)( size_t,gfp_t ),
                               void (*free_func)( const void * ) )
 {
     polarssl_malloc = malloc_func;
     polarssl_free = free_func;
     return( 0 );
 }
+#endif
+
 #endif /* POLARSSL_PLATFORM_MEMORY */
 
 #if defined(POLARSSL_PLATFORM_PRINTF_ALT)
@@ -80,22 +93,13 @@ static int platform_printf_uninit( const char *format, ... )
 #define POLARSSL_PLATFORM_STD_PRINTF    platform_printf_uninit
 #endif /* !POLARSSL_PLATFORM_STD_PRINTF */
 
+int (*polarssl_printf)( const char *, ... ) = POLARSSL_PLATFORM_STD_PRINTF;
 
-//int (*polarssl_printf)( const char *, ... ) = POLARSSL_PLATFORM_STD_PRINTF;
-/*
 int platform_set_printf( int (*printf_func)( const char *, ... ) )
 {
     polarssl_printf = printf_func;
     return( 0 );
 }
-
-int platform_set_printf(void)
-{
-    polarssl_printf = printf_func;
-    return( 0 );
-}
-*/
-
 #endif /* POLARSSL_PLATFORM_PRINTF_ALT */
 
 #if defined(POLARSSL_PLATFORM_FPRINTF_ALT)

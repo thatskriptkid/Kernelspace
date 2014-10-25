@@ -31,25 +31,27 @@
  */
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "polarssl/config.h"
+#include "config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
 #if defined(POLARSSL_BIGNUM_C)
 
-#include "polarssl/bignum.h"
-#include "polarssl/bn_mul.h"
+#include "bignum.h"
+#include "bn_mul.h"
 
 #if defined(POLARSSL_PLATFORM_C)
-#include "polarssl/platform.h"
+#include "platform.h"
 #else
 #define polarssl_printf     printf
 #define polarssl_malloc     malloc
 #define polarssl_free       free
 #endif
 
+#if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdlib.h>
+#endif
 
 /* Implementation that should never be optimized out by the compiler */
 static void polarssl_zeroize( void *v, size_t n ) {
@@ -560,6 +562,7 @@ cleanup:
 }
 
 #if defined(POLARSSL_FS_IO)
+#if !defined(POALRSSL_LINUX_KERNEL)
 /*
  * Read X from an opened file
  */
@@ -632,6 +635,106 @@ cleanup:
 
     return( ret );
 }
+#else
+int mpi_read_file( mpi *X, int radix, struct file *fin )
+{
+    t_uint d;
+    size_t slen;
+    char *p;
+    /*
+     * Buffer should have space for (short) label and decimal formatted MPI,
+     * newline characters and '\0'
+     */
+    char s[ POLARSSL_MPI_RW_BUFFER_SIZE ];
+    
+	mm_segment_t         old_fs;
+	loff_t pos;
+	
+	old_fs = get_fs();
+	
+	memset( s, 0, sizeof( s ) );
+	
+    set_fs(get_ds());
+    pos=0;
+    
+    if((vfs_read(fin,s,sizeof(s)-1,&pos))<0) {
+		filp_close(fin,NULL);
+		set_fs(old_fs);
+		return( POLARSSL_ERR_MPI_FILE_IO_ERROR );
+    } 
+        
+	filp_close(fin,NULL);
+	
+    set_fs(old_fs);
+    
+    slen = strlen( s );
+    if( slen == sizeof( s ) - 2 )
+        return( POLARSSL_ERR_MPI_BUFFER_TOO_SMALL );
+
+    if( s[slen - 1] == '\n' ) { slen--; s[slen] = '\0'; }
+    if( s[slen - 1] == '\r' ) { slen--; s[slen] = '\0'; }
+
+    p = s + slen;
+    while( --p >= s )
+        if( mpi_get_digit( &d, radix, *p ) != 0 )
+            break;
+
+    return( mpi_read_string( X, radix, p + 1 ) );
+}
+
+/*
+ * Write X into an opened file (or stdout if fout == NULL)
+ */
+int mpi_write_file( const char *p, const mpi *X, int radix, struct file *fout )
+{
+    int ret;
+    size_t n, slen, plen;
+    /*
+     * Buffer should have space for (short) label and decimal formatted MPI,
+     * newline characters and '\0'
+     */
+    char s[ POLARSSL_MPI_RW_BUFFER_SIZE ];
+	mm_segment_t         old_fs;
+	loff_t pos;
+	
+	old_fs = get_fs();
+	
+    n = sizeof( s );
+    memset( s, 0, n );
+    n -= 2;
+
+    MPI_CHK( mpi_write_string( X, radix, s, (size_t *) &n ) );
+
+    if( p == NULL ) p = "";
+
+    plen = strlen( p );
+    slen = strlen( s );
+    s[slen++] = '\r';
+    s[slen++] = '\n';
+	
+	set_fs(get_ds());
+	pos=0;
+	
+	if( fout != NULL )
+    {
+        if( (vfs_write(fout,p,plen,&pos) != plen) || 
+			(vfs_write(fout,s, slen,&pos) != slen) ) {
+			filp_close(fout,NULL);
+			set_fs(old_fs);	
+            return( POLARSSL_ERR_MPI_FILE_IO_ERROR );
+        }
+    }
+    else
+        polarssl_printf( "%s%s", p, s );
+	
+	filp_close(fout,NULL);
+	
+    set_fs(old_fs);
+    
+cleanup:
+	return( ret );
+}
+#endif /* POLARSSL_LINUX_KERNEL */
 #endif /* POLARSSL_FS_IO */
 
 /*

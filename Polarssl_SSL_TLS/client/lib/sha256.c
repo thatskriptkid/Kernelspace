@@ -38,17 +38,14 @@
 
 #include "sha256.h"
 
-#if defined(POLARSSL_FS_IO) || defined(POLARSSL_SELF_TEST)
-#if !defined(POLARSSL_LINUX_KERNEL)
+#if (defined(POLARSSL_FS_IO) || defined(POLARSSL_SELF_TEST)) && !defined(POLARSSL_LINUX_KERNEL)
 #include <stdio.h>
-#endif
 #endif
 
 #if defined(POLARSSL_PLATFORM_C)
 #include "platform.h"
 #else
 #define polarssl_printf printf
-
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
@@ -362,18 +359,47 @@ void sha256( const unsigned char *input, size_t ilen,
 }
 
 #if defined(POLARSSL_FS_IO)
+#if !defined(POLARSSL_LINUX_KERNEL)
 /*
  * output = SHA-256( file contents )
  */
 int sha256_file( const char *path, unsigned char output[32], int is224 )
 {
-	//FILE *f;
-	struct file *f;
-    ssize_t n;
+    FILE *f;
+    size_t n;
     sha256_context ctx;
+    unsigned char buf[1024];
+
+    if( ( f = fopen( path, "rb" ) ) == NULL )
+        return( POLARSSL_ERR_SHA256_FILE_IO_ERROR );
+
+    sha256_init( &ctx );
+    sha256_starts( &ctx, is224 );
+
+    while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
+        sha256_update( &ctx, buf, n );
+
+    sha256_finish( &ctx, output );
+    sha256_free( &ctx );
+
+    if( ferror( f ) != 0 )
+    {
+        fclose( f );
+        return( POLARSSL_ERR_SHA256_FILE_IO_ERROR );
+    }
+
+    fclose( f );
+    return( 0 );
+}
+#else /* POALRSSL_LINUX_KERNEL */
+int sha256_file( const char *path, unsigned char output[32], int is224 )
+{
+	struct file			 *f;
+    ssize_t 	   		 n;
+    sha256_context       ctx;
     unsigned char __user buf[1024];
-    loff_t pos;
-	mm_segment_t old_fs;
+    loff_t 				 pos;
+	mm_segment_t         old_fs;
 	
 	old_fs = get_fs();
 	
@@ -383,31 +409,21 @@ int sha256_file( const char *path, unsigned char output[32], int is224 )
 	
 	if(IS_ERR(f))
 		return (POLARSSL_ERR_SHA256_FILE_IO_ERROR);
-	/*
-    if( ( f = fopen( path, "rb" ) ) == NULL )
-        return( POLARSSL_ERR_SHA256_FILE_IO_ERROR );
-	*/
-    sha256_init( &ctx );
+	
+	sha256_init( &ctx );
     sha256_starts( &ctx, is224 );
 
 	pos=0;
-	//while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
+	
 	while((n=vfs_read(f,buf,sizeof(buf),&pos))>0)
         sha256_update( &ctx, buf, n );
 
     sha256_finish( &ctx, output );
     sha256_free( &ctx );
 	
-	/*
-    if( ferror( f ) != 0 )
-    {
-        fclose( f );
-        return( POLARSSL_ERR_SHA256_FILE_IO_ERROR );
-    }
-	*/
-	
 	if (n<0) {
         filp_close(f,NULL);
+        set_fs(old_fs);
         return (POLARSSL_ERR_SHA256_FILE_IO_ERROR);
     }
     
@@ -416,7 +432,10 @@ int sha256_file( const char *path, unsigned char output[32], int is224 )
     
     return 0;
 }
+#endif
 #endif /* POLARSSL_FS_IO */
+
+
 
 /*
  * SHA-256 HMAC context setup
@@ -684,7 +703,7 @@ int sha256_self_test( int verbose )
         k = i < 3;
 
         if( verbose != 0 )
-            klog(KL_DBG, "  SHA-%d test #%d: ", 256 - k * 32, j + 1 );
+            polarssl_printf( "  SHA-%d test #%d: ", 256 - k * 32, j + 1 );
 
         sha256_starts( &ctx, k );
 
@@ -704,18 +723,18 @@ int sha256_self_test( int verbose )
         if( memcmp( sha256sum, sha256_test_sum[i], 32 - k * 4 ) != 0 )
         {
             if( verbose != 0 )
-                klog(KL_DBG, "failed\n" );
+                polarssl_printf( "failed\n" );
 
             ret = 1;
             goto exit;
         }
 
         if( verbose != 0 )
-            klog(KL_DBG, "passed\n" );
+            polarssl_printf( "passed\n" );
     }
 
     if( verbose != 0 )
-        klog(KL_DBG, "\n" );
+        polarssl_printf( "\n" );
 
     for( i = 0; i < 14; i++ )
     {
@@ -723,7 +742,7 @@ int sha256_self_test( int verbose )
         k = i < 7;
 
         if( verbose != 0 )
-            klog(KL_DBG, "  HMAC-SHA-%d test #%d: ", 256 - k * 32, j + 1 );
+            polarssl_printf( "  HMAC-SHA-%d test #%d: ", 256 - k * 32, j + 1 );
 
         if( j == 5 || j == 6 )
         {
@@ -744,18 +763,18 @@ int sha256_self_test( int verbose )
         if( memcmp( sha256sum, sha256_hmac_test_sum[i], buflen ) != 0 )
         {
             if( verbose != 0 )
-                klog(KL_DBG, "failed\n" );
+                polarssl_printf( "failed\n" );
 
             ret = 1;
             goto exit;
         }
 
         if( verbose != 0 )
-            klog(KL_DBG, "passed\n" );
+            polarssl_printf( "passed\n" );
     }
 
     if( verbose != 0 )
-        klog(KL_DBG, "\n" );
+        polarssl_printf( "\n" );
 
 exit:
     sha256_free( &ctx );

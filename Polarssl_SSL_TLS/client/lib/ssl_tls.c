@@ -32,23 +32,23 @@
  */
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "config.h"
+#include "polarssl/config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
 #if defined(POLARSSL_SSL_TLS_C)
 
-#include "debug.h"
-#include "ssl.h"
+#include "polarssl/debug.h"
+#include "polarssl/ssl.h"
 
 #if defined(POLARSSL_X509_CRT_PARSE_C) && \
-    defined(POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE) 
-#include "oid.h"
+    defined(POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE)
+#include "polarssl/oid.h"
 #endif
 
 #if defined(POLARSSL_PLATFORM_C)
-#include "platform.h"
+#include "polarssl/platform.h"
 #else
 #define polarssl_malloc     malloc
 #define polarssl_free       free
@@ -993,18 +993,15 @@ static void ssl_mac( md_context_t *md_ctx, unsigned char *secret,
 {
     unsigned char header[11];
     unsigned char padding[48];
-    int padlen = 0;
+    int padlen;
     int md_size = md_get_size( md_ctx->md_info );
     int md_type = md_get_type( md_ctx->md_info );
 
+    /* Only MD5 and SHA-1 supported */
     if( md_type == POLARSSL_MD_MD5 )
         padlen = 48;
-    else if( md_type == POLARSSL_MD_SHA1 )
+    else
         padlen = 40;
-    else if( md_type == POLARSSL_MD_SHA256 )
-        padlen = 32;
-    else if( md_type == POLARSSL_MD_SHA384 )
-        padlen = 16;
 
     memcpy( header, ctr, 8 );
     header[ 8] = (unsigned char)  type;
@@ -2232,10 +2229,6 @@ int ssl_read_record( ssl_context *ssl )
         {
             SSL_DEBUG_MSG( 1, ( "is a fatal alert message (msg %d)",
                            ssl->in_msg[1] ) );
-            /**
-             * Subtract from error code as ssl->in_msg[1] is 7-bit positive
-             * error identifier.
-             */
             return( POLARSSL_ERR_SSL_FATAL_ALERT_MESSAGE );
         }
 
@@ -3347,7 +3340,7 @@ static int ssl_handshake_init( ssl_context *ssl )
             (ssl_session *) polarssl_malloc( sizeof(ssl_session) );
     }
 
-    if( ssl->handshake == NULL)
+    if( ssl->handshake == NULL )
     {
         ssl->handshake = (ssl_handshake_params *)
             polarssl_malloc( sizeof(ssl_handshake_params) );
@@ -4176,8 +4169,6 @@ static int ssl_write_hello_request( ssl_context *ssl )
         return( ret );
     }
 
-    ssl->renegotiation = SSL_RENEGOTIATION_PENDING;
-
     SSL_DEBUG_MSG( 2, ( "<= write hello request" ) );
 
     return( 0 );
@@ -4186,10 +4177,10 @@ static int ssl_write_hello_request( ssl_context *ssl )
 
 /*
  * Actually renegotiate current connection, triggered by either:
- * - calling ssl_renegotiate() on client,
- * - receiving a HelloRequest on client during ssl_read(),
- * - receiving any handshake message on server during ssl_read() after the
- *   initial handshake is completed
+ * - any side: calling ssl_renegotiate(),
+ * - client: receiving a HelloRequest during ssl_read(),
+ * - server: receiving any handshake message on server during ssl_read() after
+ *   the initial handshake is completed.
  * If the handshake doesn't complete due to waiting for I/O, it will continue
  * during the next calls to ssl_renegotiate() or ssl_read() respectively.
  */

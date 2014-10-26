@@ -24,21 +24,21 @@
  */
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "polarssl/config.h"
+#include "config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
 #if defined(POLARSSL_PK_C)
 
-#include "polarssl/pk.h"
-#include "polarssl/pk_wrap.h"
+#include "ppk.h"
+#include "pk_wrap.h"
 
 #if defined(POLARSSL_RSA_C)
-#include "polarssl/rsa.h"
+#include "rsa.h"
 #endif
 #if defined(POLARSSL_ECP_C)
-#include "polarssl/ecp.h"
+#include "ecp.h"
 #endif
 #if defined(POLARSSL_ECDSA_C)
 #include "polarssl/ecdsa.h"

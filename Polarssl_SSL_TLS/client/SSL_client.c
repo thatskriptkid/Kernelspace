@@ -1,5 +1,5 @@
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "config.h"
+#include "polarssl/config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
@@ -11,16 +11,12 @@
 #include <linux/byteorder/generic.h> /* Generic Byte-reordering support */
 #endif
 
-#include "platform.h"
-#include "entropy.h"
-#include "ctr_drbg.h"
-#include "ssl.h"
-
-
+#include "polarssl/platform.h"
+#include "polarssl/entropy.h"
+#include "polarssl/ctr_drbg.h"
+#include "polarssl/ssl.h"
 
 #define SUCCESS 0
-
-
 static struct socket 	  *sockp = NULL;
 static __u32 		  	   ip;
 static int			  	   port;

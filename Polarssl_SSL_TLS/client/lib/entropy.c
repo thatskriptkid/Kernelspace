@@ -24,28 +24,23 @@
  */
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "config.h"
+#include "polarssl/config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#if defined(POLARSSL_LINUX_KERNEL)
-#include "polarssl_kernel_support.h"
-#endif
-
 #if defined(POLARSSL_ENTROPY_C)
 
-#include "entropy.h"
-#include "entropy_poll.h"
+#include "polarssl/entropy.h"
+#include "polarssl/entropy_poll.h"
 
-#if defined(POLARSSL_FS_IO)
+#if defined(POLARSSL_FS_IO) && !defined(POLARSSL_LINUX_KERNEL)
 #include <stdio.h>
 #endif
 
 #if defined(POLARSSL_HAVEGE_C)
-#include "havege.h"
+#include "polarssl/havege.h"
 #endif
-
 
 /* Implementation that should never be optimized out by the compiler */
 static void polarssl_zeroize( void *v, size_t n ) {
@@ -76,16 +71,13 @@ void entropy_init( entropy_context *ctx )
     entropy_add_source( ctx, platform_entropy_poll, NULL,
                         ENTROPY_MIN_PLATFORM );
 #endif
-/*
 #if defined(POLARSSL_TIMING_C)
     entropy_add_source( ctx, hardclock_poll, NULL, ENTROPY_MIN_HARDCLOCK );
 #endif
-* */
 #if defined(POLARSSL_HAVEGE_C)
     entropy_add_source( ctx, havege_poll, &ctx->havege_data,
                         ENTROPY_MIN_HAVEGE );
 #endif
-
 #endif /* POLARSSL_NO_DEFAULT_ENTROPY_SOURCES */
 }
 
@@ -333,18 +325,68 @@ exit:
 }
 
 #if defined(POLARSSL_FS_IO)
+#if !defined(POLARSSL_LINUX_KERNEL)
 int entropy_write_seed_file( entropy_context *ctx, const char *path )
 {
     int ret = POLARSSL_ERR_ENTROPY_FILE_IO_ERROR;
-    //FILE *f;
+    FILE *f;
+    unsigned char buf[ENTROPY_BLOCK_SIZE];
+
+    if( ( f = fopen( path, "wb" ) ) == NULL )
+        return( POLARSSL_ERR_ENTROPY_FILE_IO_ERROR );
+
+    if( ( ret = entropy_func( ctx, buf, ENTROPY_BLOCK_SIZE ) ) != 0 )
+        goto exit;
+
+    if( fwrite( buf, 1, ENTROPY_BLOCK_SIZE, f ) != ENTROPY_BLOCK_SIZE )
+    {
+        ret = POLARSSL_ERR_ENTROPY_FILE_IO_ERROR;
+        goto exit;
+    }
+
+    ret = 0;
+
+exit:
+    fclose( f );
+    return( ret );
+}
+
+int entropy_update_seed_file( entropy_context *ctx, const char *path )
+{
+    FILE *f;
+    size_t n;
+    unsigned char buf[ ENTROPY_MAX_SEED_SIZE ];
+
+    if( ( f = fopen( path, "rb" ) ) == NULL )
+        return( POLARSSL_ERR_ENTROPY_FILE_IO_ERROR );
+
+    fseek( f, 0, SEEK_END );
+    n = (size_t) ftell( f );
+    fseek( f, 0, SEEK_SET );
+
+    if( n > ENTROPY_MAX_SEED_SIZE )
+        n = ENTROPY_MAX_SEED_SIZE;
+
+    if( fread( buf, 1, n, f ) != n )
+    {
+        fclose( f );
+        return( POLARSSL_ERR_ENTROPY_FILE_IO_ERROR );
+    }
+
+    fclose( f );
+
+    entropy_update_manual( ctx, buf, n );
+
+    return( entropy_write_seed_file( ctx, path ) );
+}
+#else
+int entropy_write_seed_file( entropy_context *ctx, const char *path )
+{
+    int ret = POLARSSL_ERR_ENTROPY_FILE_IO_ERROR;
     loff_t pos;
     struct file *f;
     unsigned char __user buf[ENTROPY_BLOCK_SIZE];
     ssize_t bytes_written;
-	/*
-    if( ( f = fopen( path, "wb" ) ) == NULL )
-        return( POLARSSL_ERR_ENTROPY_FILE_IO_ERROR );
-	*/
 	mm_segment_t old_fs;
 	
 	old_fs = get_fs();
@@ -367,26 +409,16 @@ int entropy_write_seed_file( entropy_context *ctx, const char *path )
 		ret = POLARSSL_ERR_ENTROPY_FILE_IO_ERROR;
         goto exit;
     }
-	/*
-    if( fwrite( buf, 1, ENTROPY_BLOCK_SIZE, f ) != ENTROPY_BLOCK_SIZE )
-    {
-        ret = POLARSSL_ERR_ENTROPY_FILE_IO_ERROR;
-        goto exit;
-    }
-	*/
-    ret = 0;
+	ret = 0;
 
 exit:
-    //fclose( f );
     filp_close(f,NULL);
     set_fs(old_fs);
     return (ret);
 }
 
 int entropy_update_seed_file( entropy_context *ctx, const char *path )
-{
-    //FILE *f;
-    struct file *f;
+{struct file *f;
     size_t n;
     unsigned char __user buf[ENTROPY_MAX_SEED_SIZE];
 	ssize_t bytes_read;
@@ -396,11 +428,6 @@ int entropy_update_seed_file( entropy_context *ctx, const char *path )
 	old_fs = get_fs();
 	
 	set_fs(get_ds());
-	/*
-    if( ( f = fopen( path, "rb" ) ) == NULL )
-        return( POLARSSL_ERR_ENTROPY_FILE_IO_ERROR );
-	*/
-	
 	f=filp_open(path,O_RDONLY,0);
 	
 	n=vfs_llseek(f,0,SEEK_END);
@@ -409,13 +436,6 @@ int entropy_update_seed_file( entropy_context *ctx, const char *path )
 
     if( n > ENTROPY_MAX_SEED_SIZE )
         n = ENTROPY_MAX_SEED_SIZE;
-	/*
-    if( fread( buf, 1, n, f ) != n )
-    {
-        fclose( f );
-        return( POLARSSL_ERR_ENTROPY_FILE_IO_ERROR );
-    }
-	*/
 	pos =0;
 	
 	bytes_read = vfs_read(f,buf,n,&pos);
@@ -424,8 +444,6 @@ int entropy_update_seed_file( entropy_context *ctx, const char *path )
 		filp_close(f,NULL);
 		return (POLARSSL_ERR_ENTROPY_FILE_IO_ERROR);
 	}
-    //fclose( f );
-    
     filp_close(f,NULL);
     
 	set_fs(old_fs);
@@ -434,12 +452,13 @@ int entropy_update_seed_file( entropy_context *ctx, const char *path )
 
     return (entropy_write_seed_file(ctx,path));
 }
+#endif
 #endif /* POLARSSL_FS_IO */
 
 #if defined(POLARSSL_SELF_TEST)
 
 #if defined(POLARSSL_PLATFORM_C)
-#include "platform.h"
+#include "polarssl/platform.h"
 #else
 #include <stdio.h>
 #define polarssl_printf     printf
@@ -473,7 +492,7 @@ int entropy_self_test( int verbose )
     size_t i, j;
 
     if( verbose != 0 )
-        klog(KL_DBG, "  ENTROPY test: " );
+        polarssl_printf( "  ENTROPY test: " );
 
     entropy_init( &ctx );
 
@@ -481,10 +500,10 @@ int entropy_self_test( int verbose )
     if( ret != 0 )
         goto cleanup;
 
-    if( ( ret = entropy_gather(&ctx)) != 0 )
+    if( ( ret = entropy_gather( &ctx ) ) != 0 )
         goto cleanup;
 
-    if( ( ret = entropy_update_manual(&ctx,buf,sizeof buf)) != 0 )
+    if( ( ret = entropy_update_manual( &ctx, buf, sizeof buf ) ) != 0 )
         goto cleanup;
 
     /*
@@ -519,11 +538,11 @@ cleanup:
     if( verbose != 0 )
     {
         if( ret != 0 )
-            klog(KL_DBG, "failed\n" );
+            polarssl_printf( "failed\n" );
         else
-            klog(KL_DBG, "passed\n" );
+            polarssl_printf( "passed\n" );
 
-        klog(KL_DBG, "\n" );
+        polarssl_printf( "\n" );
     }
 
     return( ret != 0 );

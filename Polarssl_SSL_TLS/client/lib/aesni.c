@@ -29,19 +29,14 @@
  */
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "config.h"
+#include "polarssl/config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#if defined(POLARSSL_LINUX_KERNEL)
-#include "polarssl_kernel_support.h"
-#endif
-
 #if defined(POLARSSL_AESNI_C)
 
-#include "aesni.h"
-
+#include "polarssl/aesni.h"
 #if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdio.h>
 #endif
@@ -281,7 +276,6 @@ void aesni_inverse_key( unsigned char *invkey,
 static void aesni_setkey_enc_128( unsigned char *rk,
                                   const unsigned char *key )
 {
-	
     asm( "movdqu (%1), %%xmm0               \n\t" // copy the original key
          "movdqu %%xmm0, (%0)               \n\t" // as round key 0
          "jmp 2f                            \n\t" // skip auxiliary routine
@@ -332,7 +326,6 @@ static void aesni_setkey_enc_128( unsigned char *rk,
 static void aesni_setkey_enc_192( unsigned char *rk,
                                   const unsigned char *key )
 {
-	
     asm( "movdqu (%1), %%xmm0   \n\t" // copy original round key
          "movdqu %%xmm0, (%0)   \n\t"
          "add $16, %0           \n\t"
@@ -390,7 +383,6 @@ static void aesni_setkey_enc_192( unsigned char *rk,
 static void aesni_setkey_enc_256( unsigned char *rk,
                                   const unsigned char *key )
 {
-	
     asm( "movdqu (%1), %%xmm0           \n\t"
          "movdqu %%xmm0, (%0)           \n\t"
          "add $16, %0                   \n\t"
@@ -458,7 +450,6 @@ int aesni_setkey_enc( unsigned char *rk,
                       const unsigned char *key,
                       size_t bits )
 {
-	
     switch( bits )
     {
         case 128: aesni_setkey_enc_128( rk, key ); break;

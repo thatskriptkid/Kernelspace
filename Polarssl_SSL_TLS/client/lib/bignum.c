@@ -29,17 +29,20 @@
  *  http://www.stillhq.com/extracted/gnupg-api/mpi/
  *  http://math.libtomcrypt.com/files/tommath.pdf
  */
-#define polarssl_printf(...) klog(KL_DBG,VA_ARGS)
+
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "config.h"
+#include "polarssl/config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
 #if defined(POLARSSL_BIGNUM_C)
 
+#include "polarssl/bignum.h"
+#include "polarssl/bn_mul.h"
+
 #if defined(POLARSSL_PLATFORM_C)
-#include "platform.h"
+#include "polarssl/platform.h"
 #else
 #define polarssl_printf     printf
 #define polarssl_malloc     malloc
@@ -49,11 +52,6 @@
 #if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdlib.h>
 #endif
-
-#include "bignum.h"
-#include "bn_mul.h"
-
-
 
 /* Implementation that should never be optimized out by the compiler */
 static void polarssl_zeroize( void *v, size_t n ) {
@@ -2162,7 +2160,11 @@ int mpi_is_prime( mpi *X,
                   void *p_rng )
 {
     int ret;
-    const mpi XX = { 1, X->n, X->p }; /* Abs(X) */
+    mpi XX;
+
+    XX.s = 1;
+    XX.n = X->n;
+    XX.p = X->p;
 
     if( mpi_cmp_int( &XX, 0 ) == 0 ||
         mpi_cmp_int( &XX, 1 ) == 0 )

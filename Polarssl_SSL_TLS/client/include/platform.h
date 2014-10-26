@@ -27,6 +27,8 @@
 #ifndef POLARSSL_PLATFORM_H
 #define POLARSSL_PLATFORM_H
 
+#include "polarssl_kernel_support.h"
+
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
 #else

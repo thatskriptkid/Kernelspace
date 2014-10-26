@@ -44,7 +44,7 @@ static void *platform_malloc_uninit( size_t len )
 
 #define POLARSSL_PLATFORM_STD_MALLOC   platform_malloc_uninit
 #else
-static void *platform_malloc_uninit_kernel( size_t len,gfp_t flags )
+static void *platform_malloc_uninit_kernel( size_t len)
 {
     ((void) len);
     return( NULL );
@@ -84,15 +84,23 @@ int platform_set_malloc_free( void * (*malloc_func)( size_t ),
     return( 0 );
 }
 #else
-void * (*polarssl_malloc)( size_t,gfp_t ) = POLARSSL_PLATFORM_STD_MALLOC;
+void * (*polarssl_malloc)( size_t) = POLARSSL_PLATFORM_STD_MALLOC;
 void (*polarssl_free)( const void * )     = POLARSSL_PLATFORM_STD_FREE;
+
+void * (*polarssl_malloc)(size_t) = kmalloc(
 
 int platform_set_malloc_free( void * (*malloc_func)( size_t,gfp_t ),
                               void (*free_func)( const void * ) )
 {
+	kmalloc_set(malloc_func,GFP_KERNEL);
     polarssl_malloc = malloc_func;
     polarssl_free = free_func;
     return( 0 );
+}
+
+void kmalloc_set(*(f),gfp_t)
+{
+	polarssl_malloc = kmalloc
 }
 #endif
 

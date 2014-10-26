@@ -37,7 +37,7 @@ static void set_standart_func(void);
 static void set_standart_func(void)
 {
 	platform_set_malloc_free(&kmalloc,&kfree);
-	platform_set_printf(&klog);
+	//platform_set_printf(&klog);
 }
 
 static void ssl_prep(void)

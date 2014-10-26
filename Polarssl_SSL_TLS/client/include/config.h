@@ -179,7 +179,7 @@
  * Uncomment a macro to enable alternate implementation of specific base
  * platform function
  */
-#define POLARSSL_PLATFORM_PRINTF_ALT
+//#define POLARSSL_PLATFORM_PRINTF_ALT
 //#define POLARSSL_PLATFORM_FPRINTF_ALT
 /* \} name SECTION: System support */
 

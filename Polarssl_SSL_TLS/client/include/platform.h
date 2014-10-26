@@ -27,7 +27,7 @@
 #ifndef POLARSSL_PLATFORM_H
 #define POLARSSL_PLATFORM_H
 
-#include "polarssl_kernel_support.h"
+
 
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
@@ -37,6 +37,8 @@
 
 #if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdio.h>
+#else
+#include "polarssl_kernel_support.h"
 #endif
 
 #ifdef __cplusplus
@@ -91,11 +93,10 @@ extern void (*polarssl_free)( void *ptr );
  */
 int platform_set_malloc_free( void * (*malloc_func)( size_t ),
                               void (*free_func)( void * ) );
-#else
-extern void * (*polarssl_malloc)( size_t len,gfp_t flags);
-extern void (*polarssl_free)( const void *ptr );
-int platform_set_malloc_free( void * (*malloc_func)( size_t,gfp_t ),
-                              void (*free_func)(const void * ) );
+#else          
+#define polarssl_malloc(A) kmalloc(A,GFP_KERNEL)
+#define polarssl_free(A) kfree(A)
+
 #endif
 #else /* POLARSSL_PLATFORM_ENTROPY */
 #define polarssl_malloc     malloc
@@ -107,7 +108,7 @@ int platform_set_malloc_free( void * (*malloc_func)( size_t,gfp_t ),
 /*
  * The function pointers for printf
  */
-#if defined(POLARSSL_PLATFORM_PRINTF_ALT)
+
 #if !defined(POLARSSL_LINUX_KERNEL)
 extern int (*polarssl_printf)( const char *format, ... );
 
@@ -120,10 +121,9 @@ extern int (*polarssl_printf)( const char *format, ... );
  */
 int platform_set_printf( int (*printf_func)( const char *, ... ) );
 #else
-extern int (*polarssl_printf)(int loglevel, const char *format, ... );
-int platform_set_printf( void (*printf_func)(int, const char *, ... ) );
+#define polarssl_printf(...) klog(KL_DBG,__VA_ARGS__) 
 #endif
-#else /* POLARSSL_PLATFORM_PRINTF_ALT */
+#if !defined(POLARSSL_PLATFORM_PRINTF_ALT)
 #define polarssl_printf     printf
 #endif /* POLARSSL_PLATFORM_PRINTF_ALT */
 

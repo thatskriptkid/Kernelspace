@@ -29,7 +29,7 @@
  *  http://www.stillhq.com/extracted/gnupg-api/mpi/
  *  http://math.libtomcrypt.com/files/tommath.pdf
  */
-
+#define polarssl_printf(...) klog(KL_DBG,VA_ARGS)
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
 #else
@@ -37,9 +37,6 @@
 #endif
 
 #if defined(POLARSSL_BIGNUM_C)
-
-#include "bignum.h"
-#include "bn_mul.h"
 
 #if defined(POLARSSL_PLATFORM_C)
 #include "platform.h"
@@ -52,6 +49,11 @@
 #if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdlib.h>
 #endif
+
+#include "bignum.h"
+#include "bn_mul.h"
+
+
 
 /* Implementation that should never be optimized out by the compiler */
 static void polarssl_zeroize( void *v, size_t n ) {

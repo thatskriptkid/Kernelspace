@@ -21,5 +21,5 @@
 
 #define __SUBCOMPONENT__ "kernel_polarssl"
 #define __LOGNAME__ "kernel_polarssl.log"
-//#define polarssl_printf(a) klog(KL_DBG,a) 
+
 

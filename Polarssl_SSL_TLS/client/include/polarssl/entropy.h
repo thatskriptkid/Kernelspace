@@ -27,14 +27,14 @@
 #ifndef POLARSSL_ENTROPY_H
 #define POLARSSL_ENTROPY_H
 
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <string.h>
+#endif
+
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
 #else
 #include POLARSSL_CONFIG_FILE
-#endif
-
-#if !defined(POLARSSL_LINUX_KERNEL)
-#include <string.h>
 #endif
 
 #if defined(POLARSSL_SHA512_C) && !defined(POLARSSL_ENTROPY_FORCE_SHA256)
@@ -129,11 +129,9 @@ typedef struct
 #endif
     int             source_count;
     source_state    source[ENTROPY_MAX_SOURCES];
-    
 #if defined(POLARSSL_HAVEGE_C)
     havege_state    havege_data;
 #endif
-
 #if defined(POLARSSL_THREADING_C)
     threading_mutex_t mutex;    /*!< mutex                  */
 #endif

@@ -44,9 +44,8 @@
 
 #if defined(POLARSSL_PLATFORM_C)
 #include "platform.h"
-#if !defined(POLARSSL_LINUX_KERNEL)
+#else
 #define polarssl_printf printf
-#endif
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
@@ -379,7 +378,6 @@ int ctr_drbg_random( void *p_rng, unsigned char *output, size_t output_len )
 }
 
 #if defined(POLARSSL_FS_IO)
-#if !defined(POLARSSL_LINUX_KERNEL)
 int ctr_drbg_write_seed_file( ctr_drbg_context *ctx, const char *path )
 {
     int ret = POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR;
@@ -436,76 +434,6 @@ int ctr_drbg_update_seed_file( ctr_drbg_context *ctx, const char *path )
 
     return( ctr_drbg_write_seed_file( ctx, path ) );
 }
-#else
-
-int ctr_drbg_write_seed_file( ctr_drbg_context *ctx, const char *path )
-
-{
-	int ret = POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR;
-	struct file *f;
-	unsigned char __user buf[CTR_DRBG_MAX_INPUT];
-	ssize_t bytes_writed;
-	loff_t pos;
-	
-	mm_segment_t old_fs = get_fs();
-	set_fs(get_ds());
-	
-	f = filp_open(path,O_RDWR,0);
-	
-	if (IS_ERR(f))
-	return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
-	
-	if( ( ret = ctr_drbg_random( ctx, buf, CTR_DRBG_MAX_INPUT ) ) != 0 )
-	
-	goto exit;
-	
-	pos = 0;
-	bytes_writed = vfs_write(f,buf,CTR_DRBG_MAX_INPUT,&pos);
-	
-	if (bytes_writed != CTR_DRBG_MAX_INPUT) {
-		ret = POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR;
-		goto exit;
-	}
-	
-	ret = 0;
-	
-	exit:
-		filp_close(f,NULL);
-		set_fs(old_fs);
-		
-		return( ret );
-}
-
-int ctr_drbg_update_seed_file( ctr_drbg_context *ctx, const char *path )
-{
-	struct file *f;
-	loff_t n,pos;
-unsigned char __user buf[CTR_DRBG_MAX_INPUT];
-ssize_t bytes_read;
-mm_segment_t old_fs = get_fs();
-set_fs(get_ds());
-f = filp_open(path,O_RDONLY,0);
-if (IS_ERR(f))
-return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR );
-n = vfs_llseek(f,0,SEEK_END);
-vfs_llseek(f,0,SEEK_SET);
-if( n > CTR_DRBG_MAX_INPUT )
-{
-filp_close(f,NULL);
-return( POLARSSL_ERR_CTR_DRBG_INPUT_TOO_BIG );
-}
-pos=0;
-bytes_read = vfs_read(f,buf,n,&pos);
-if (bytes_read<0) {
-filp_close(f,NULL);
-return( POLARSSL_ERR_CTR_DRBG_FILE_IO_ERROR);
-}
-filp_close(f,NULL);
-set_fs(old_fs);
-ctr_drbg_update(ctx,buf,n);
-return(ctr_drbg_write_seed_file(ctx,path));
-}
-#endif
 #endif /* POLARSSL_FS_IO */
 
 #if defined(POLARSSL_SELF_TEST)

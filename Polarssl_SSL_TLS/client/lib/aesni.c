@@ -29,14 +29,15 @@
  */
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "polarssl/config.h"
+#include "config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
 #if defined(POLARSSL_AESNI_C)
 
-#include "polarssl/aesni.h"
+#include "aesni.h"
+
 #if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdio.h>
 #endif

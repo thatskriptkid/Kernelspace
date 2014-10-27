@@ -325,7 +325,6 @@ exit:
 }
 
 #if defined(POLARSSL_FS_IO)
-#if !defined(POLARSSL_LINUX_KERNEL)
 int entropy_write_seed_file( entropy_context *ctx, const char *path )
 {
     int ret = POLARSSL_ERR_ENTROPY_FILE_IO_ERROR;
@@ -379,80 +378,6 @@ int entropy_update_seed_file( entropy_context *ctx, const char *path )
 
     return( entropy_write_seed_file( ctx, path ) );
 }
-#else
-int entropy_write_seed_file( entropy_context *ctx, const char *path )
-{
-    int ret = POLARSSL_ERR_ENTROPY_FILE_IO_ERROR;
-    loff_t pos;
-    struct file *f;
-    unsigned char __user buf[ENTROPY_BLOCK_SIZE];
-    ssize_t bytes_written;
-	mm_segment_t old_fs;
-	
-	old_fs = get_fs();
-	
-	set_fs(get_ds());
-	
-	f = filp_open(path,O_RDWR,0);
-	
-	if(IS_ERR(f))
-		return (POLARSSL_ERR_ENTROPY_FILE_IO_ERROR);
-	
-    if( ( ret = entropy_func( ctx, buf, ENTROPY_BLOCK_SIZE ) ) != 0 )
-        goto exit;
-        
-    pos=0;
-    
-    bytes_written = vfs_write(f,buf,ENTROPY_BLOCK_SIZE,&pos);
-    
-    if (bytes_written!=ENTROPY_BLOCK_SIZE) {
-		ret = POLARSSL_ERR_ENTROPY_FILE_IO_ERROR;
-        goto exit;
-    }
-	ret = 0;
-
-exit:
-    filp_close(f,NULL);
-    set_fs(old_fs);
-    return (ret);
-}
-
-int entropy_update_seed_file( entropy_context *ctx, const char *path )
-{struct file *f;
-    size_t n;
-    unsigned char __user buf[ENTROPY_MAX_SEED_SIZE];
-	ssize_t bytes_read;
-	loff_t pos;
-	mm_segment_t old_fs;
-	
-	old_fs = get_fs();
-	
-	set_fs(get_ds());
-	f=filp_open(path,O_RDONLY,0);
-	
-	n=vfs_llseek(f,0,SEEK_END);
-    
-    vfs_llseek(f,0,SEEK_SET );
-
-    if( n > ENTROPY_MAX_SEED_SIZE )
-        n = ENTROPY_MAX_SEED_SIZE;
-	pos =0;
-	
-	bytes_read = vfs_read(f,buf,n,&pos);
-	
-	if(bytes_read!=n) {
-		filp_close(f,NULL);
-		return (POLARSSL_ERR_ENTROPY_FILE_IO_ERROR);
-	}
-    filp_close(f,NULL);
-    
-	set_fs(old_fs);
-	
-    entropy_update_manual(ctx,buf,n);
-
-    return (entropy_write_seed_file(ctx,path));
-}
-#endif
 #endif /* POLARSSL_FS_IO */
 
 #if defined(POLARSSL_SELF_TEST)

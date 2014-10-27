@@ -46,11 +46,13 @@
 #include <stdio.h>
 #endif
 
+if !defined(POLARSSL_LINUX_KERNEL)
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
 #include <basetsd.h>
 typedef UINT32 uint32_t;
-#elseif !defined(POLARSSL_LINUX_KERNEL)
+#else
 #include <inttypes.h>
+#endif
 #endif
 
 #if defined(POLARSSL_HAVE_TIME)

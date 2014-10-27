@@ -34,8 +34,6 @@
 #endif
 
 #if defined(POLARSSL_LINUX_KERNEL)
-#include "polarssl_kernel_support.h"
-#else
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
 #include <basetsd.h>
 typedef UINT32 uint32_t;

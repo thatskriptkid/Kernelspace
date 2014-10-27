@@ -30,8 +30,6 @@
 #if !defined(POLARSSL_LINUX_KERNEL)
 #include <stdio.h>
 #include <string.h>
-#else
-#include "polarssl_kernel_support.h>
 #endif
 
 #if !defined(POLARSSL_CONFIG_FILE)

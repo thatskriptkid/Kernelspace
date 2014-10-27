@@ -43,7 +43,7 @@
 #include "ssl.h"
 
 #if defined(POLARSSL_X509_CRT_PARSE_C) && \
-    defined(POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE) 
+    defined(POLARSSL_X509_CHECK_EXTENDED_KEY_USAGE)
 #include "oid.h"
 #endif
 

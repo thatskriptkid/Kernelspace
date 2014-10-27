@@ -38,7 +38,7 @@
 
 #include "polarssl/sha256.h"
 
-#if (defined(POLARSSL_FS_IO) || defined(POLARSSL_SELF_TEST)) && !defined(POLARSSL_LINUX_KERNEL)
+#if defined(POLARSSL_FS_IO) || defined(POLARSSL_SELF_TEST)
 #include <stdio.h>
 #endif
 
@@ -359,7 +359,6 @@ void sha256( const unsigned char *input, size_t ilen,
 }
 
 #if defined(POLARSSL_FS_IO)
-#if !defined(POLARSSL_LINUX_KERNEL)
 /*
  * output = SHA-256( file contents )
  */
@@ -391,51 +390,7 @@ int sha256_file( const char *path, unsigned char output[32], int is224 )
     fclose( f );
     return( 0 );
 }
-#else /* POALRSSL_LINUX_KERNEL */
-int sha256_file( const char *path, unsigned char output[32], int is224 )
-{
-	struct file			 *f;
-    ssize_t 	   		 n;
-    sha256_context       ctx;
-    unsigned char __user buf[1024];
-    loff_t 				 pos;
-	mm_segment_t         old_fs;
-	
-	old_fs = get_fs();
-	
-	set_fs(get_ds());
-	
-	f=filp_open(path,O_RDONLY,0);
-	
-	if(IS_ERR(f))
-		return (POLARSSL_ERR_SHA256_FILE_IO_ERROR);
-	
-	sha256_init( &ctx );
-    sha256_starts( &ctx, is224 );
-
-	pos=0;
-	
-	while((n=vfs_read(f,buf,sizeof(buf),&pos))>0)
-        sha256_update( &ctx, buf, n );
-
-    sha256_finish( &ctx, output );
-    sha256_free( &ctx );
-	
-	if (n<0) {
-        filp_close(f,NULL);
-        set_fs(old_fs);
-        return (POLARSSL_ERR_SHA256_FILE_IO_ERROR);
-    }
-    
-    filp_close(f,NULL);
-    set_fs(old_fs);
-    
-    return 0;
-}
-#endif
 #endif /* POLARSSL_FS_IO */
-
-
 
 /*
  * SHA-256 HMAC context setup

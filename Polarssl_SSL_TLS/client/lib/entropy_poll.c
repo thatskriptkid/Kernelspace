@@ -29,19 +29,14 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
-#if defined(POLARSSL_LINUX_KERNEL)
-#include "polarssl_kernel_support.h"
-#endif
-
 #if defined(POLARSSL_ENTROPY_C)
 
 #include "entropy.h"
 #include "entropy_poll.h"
-/*
+
 #if defined(POLARSSL_TIMING_C)
 #include "timing.h"
-tsk | 10.09
-*/
+#endif
 #if defined(POLARSSL_HAVEGE_C)
 #include "havege.h"
 #endif
@@ -90,37 +85,16 @@ int platform_entropy_poll( void *data, unsigned char *output, size_t len,
 int platform_entropy_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen )
 {
-    //FILE *file;
-    
-    struct  file *filp;
-    loff_t  pos;
-    size_t  ret;
-    
+    FILE *file;
+    size_t ret;
     ((void) data);
-    
-    mm_segment_t old_fs;
-    
-    old_fs = get_fs();
-	
-	set_fs(get_ds());
 
     *olen = 0;
-    
-	pos = 0;
-	
-	/*
+
     file = fopen( "/dev/urandom", "rb" );
-    
     if( file == NULL )
         return( POLARSSL_ERR_ENTROPY_SOURCE_FAILED );
-    */
-    
-    filp = filp_open("/dev/urandom",O_RDONLY,0);
-    
-    if(IS_ERR(filp)) 
-		return POLARSSL_ERR_ENTROPY_SOURCE_FAILED;
-	
-	/*
+
     ret = fread( output, 1, len, file );
     if( ret != len )
     {
@@ -129,28 +103,13 @@ int platform_entropy_poll( void *data,
     }
 
     fclose( file );
-    */
-    
-    ret = vfs_read(filp, output, len, &pos); 
-	
-	if (ret!=len) {
-		filp_close(filp,NULL);
-		return( POLARSSL_ERR_ENTROPY_SOURCE_FAILED );
-	}
-	
-	*olen = len;
-	
-	filp_close(filp,NULL);
-	
-	set_fs(old_fs);
-	
+    *olen = len;
+
     return( 0 );
 }
-
 #endif /* _WIN32 && !EFIX64 && !EFI32 */
-
 #endif /* !POLARSSL_NO_PLATFORM_ENTROPY */
-/*
+
 #if defined(POLARSSL_TIMING_C)
 int hardclock_poll( void *data,
                     unsigned char *output, size_t len, size_t *olen )
@@ -167,8 +126,7 @@ int hardclock_poll( void *data,
 
     return( 0 );
 }
-*/
-//#endif /* POLARSSL_TIMING_C */
+#endif /* POLARSSL_TIMING_C */
 
 #if defined(POLARSSL_HAVEGE_C)
 int havege_poll( void *data,
@@ -184,7 +142,6 @@ int havege_poll( void *data,
 
     return( 0 );
 }
-
 #endif /* POLARSSL_HAVEGE_C */
 
 #endif /* POLARSSL_ENTROPY_C */

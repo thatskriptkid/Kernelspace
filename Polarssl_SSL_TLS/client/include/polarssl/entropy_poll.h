@@ -33,6 +33,10 @@
 #include POLARSSL_CONFIG_FILE
 #endif
 
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <string.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,15 +65,15 @@ int platform_entropy_poll( void *data,
 int havege_poll( void *data,
                  unsigned char *output, size_t len, size_t *olen );
 #endif
-/*
-#if defined(POLARSSL_TIMING_C)
+
+//#if defined(POLARSSL_TIMING_C)
 /**
  * \brief           hardclock-based entropy poll callback
- *//*
-int hardclock_poll( void *data,
-                    unsigned char *output, size_t len, size_t *olen );
-#endif
-*/
+ */
+//int hardclock_poll( void *data,
+  //                  unsigned char *output, size_t len, size_t *olen );
+//#endif
+
 #ifdef __cplusplus
 }
 #endif

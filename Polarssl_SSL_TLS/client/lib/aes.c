@@ -45,7 +45,7 @@
 #include "polarssl/aesni.h"
 #endif
 
-#if defined(POLARSSL_PLATFORM_C) 
+#if defined(POLARSSL_PLATFORM_C)
 #include "polarssl/platform.h"
 #else
 #define polarssl_printf printf
@@ -495,24 +495,25 @@ int aes_setkey_enc( aes_context *ctx, const unsigned char *key,
 #endif
 
     switch( keysize )
-{
-	case 128: ctx->nr = 10; break;
+    {
+        case 128: ctx->nr = 10; break;
         case 192: ctx->nr = 12; break;
         case 256: ctx->nr = 14; break;
         default : return( POLARSSL_ERR_AES_INVALID_KEY_LENGTH );
     }
+
 #if defined(POLARSSL_PADLOCK_C) && defined(PADLOCK_ALIGN16)
-if( aes_padlock_ace == -1 )
-    aes_padlock_ace = padlock_supports( PADLOCK_ACE );
+    if( aes_padlock_ace == -1 )
+        aes_padlock_ace = padlock_supports( PADLOCK_ACE );
 
     if( aes_padlock_ace )
         ctx->rk = RK = PADLOCK_ALIGN16( ctx->buf );
     else
 #endif
-ctx->rk = RK = ctx->buf;
+    ctx->rk = RK = ctx->buf;
 
 #if defined(POLARSSL_AESNI_C) && defined(POLARSSL_HAVE_X86_64)
-if( aesni_supports( POLARSSL_AESNI_AES ) )
+    if( aesni_supports( POLARSSL_AESNI_AES ) )
         return( aesni_setkey_enc( (unsigned char *) ctx->rk, key, keysize ) );
 #endif
 
@@ -1311,7 +1312,7 @@ int aes_self_test( int verbose )
             if( memcmp( prv, aes_test_cbc_enc[u], 16 ) != 0 )
             {
                 if( verbose != 0 )
-                    klog(KL_DBG, "failed\n" );
+                    polarssl_printf( "failed\n" );
 
                 ret = 1;
                 goto exit;

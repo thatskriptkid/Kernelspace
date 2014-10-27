@@ -24,18 +24,18 @@
  */
 
 #if !defined(POLARSSL_CONFIG_FILE)
-#include "polarssl/config.h"
+#include "config.h"
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
 
 #if defined(POLARSSL_SSL_CLI_C)
 
-#include "polarssl/debug.h"
-#include "polarssl/ssl.h"
+#include "debug.h"
+#include "ssl.h"
 
 #if defined(POLARSSL_PLATFORM_C)
-#include "polarssl/platform.h"
+#include "platform.h"
 #else
 #define polarssl_malloc     malloc
 #define polarssl_free       free
@@ -49,10 +49,8 @@
 #if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
 #include <basetsd.h>
 typedef UINT32 uint32_t;
-#else
-if !defined(POLARSSL_LINUX_KERNEL)
+#elseif !defined(POLARSSL_LINUX_KERNEL)
 #include <inttypes.h>
-#endif
 #endif
 
 #if defined(POLARSSL_HAVE_TIME)
@@ -879,7 +877,7 @@ static int ssl_parse_server_hello( ssl_context *ssl )
 {
     int ret, i, comp;
     size_t n;
-    size_t ext_len;
+    size_t ext_len = 0;
     unsigned char *buf, *ext;
     int renegotiation_info_seen = 0;
     int handshake_failure = 0;
@@ -906,22 +904,6 @@ static int ssl_parse_server_hello( ssl_context *ssl )
 
     if( ssl->in_msgtype != SSL_MSG_HANDSHAKE )
     {
-        if( ssl->renegotiation == SSL_RENEGOTIATION )
-        {
-            ssl->renego_records_seen++;
-
-            if( ssl->renego_max_records >= 0 &&
-                ssl->renego_records_seen > ssl->renego_max_records )
-            {
-                SSL_DEBUG_MSG( 1, ( "renegotiation requested, "
-                                    "but not honored by server" ) );
-                return( POLARSSL_ERR_SSL_UNEXPECTED_MESSAGE );
-            }
-
-            SSL_DEBUG_MSG( 1, ( "non-handshake message during renego" ) );
-            return( POLARSSL_ERR_SSL_WAITING_SERVER_HELLO_RENEGO );
-        }
-
         SSL_DEBUG_MSG( 1, ( "bad server hello message" ) );
         return( POLARSSL_ERR_SSL_UNEXPECTED_MESSAGE );
     }
@@ -985,7 +967,7 @@ static int ssl_parse_server_hello( ssl_context *ssl )
      *   42+n . 43+n  extensions length
      *   44+n . 44+n+m extensions
      */
-    if( ssl->in_hslen > 43 + n )
+    if( ssl->in_hslen > 42 + n )
     {
         ext_len = ( ( buf[42 + n] <<  8 )
                   | ( buf[43 + n]       ) );
@@ -996,15 +978,6 @@ static int ssl_parse_server_hello( ssl_context *ssl )
             SSL_DEBUG_MSG( 1, ( "bad server hello message" ) );
             return( POLARSSL_ERR_SSL_BAD_HS_SERVER_HELLO );
         }
-    }
-    else if( ssl->in_hslen == 42 + n )
-    {
-        ext_len = 0;
-    }
-    else
-    {
-        SSL_DEBUG_MSG( 1, ( "bad server hello message" ) );
-        return( POLARSSL_ERR_SSL_BAD_HS_SERVER_HELLO );
     }
 
     i = ( buf[39 + n] << 8 ) | buf[40 + n];

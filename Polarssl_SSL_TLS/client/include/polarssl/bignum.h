@@ -27,6 +27,13 @@
 #ifndef POLARSSL_BIGNUM_H
 #define POLARSSL_BIGNUM_H
 
+#if !defined(POLARSSL_LINUX_KERNEL)
+#include <stdio.h>
+#include <string.h>
+#else
+#include "polarssl_kernel_support.h>
+#endif
+
 #if !defined(POLARSSL_CONFIG_FILE)
 #include "config.h"
 #else
@@ -34,11 +41,7 @@
 #endif
 
 #if !defined(POLARSSL_LINUX_KERNEL)
-#include <stdio.h>
-#include <string.h>
-#endif
-
-#if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32) 
+#if defined(_MSC_VER) && !defined(EFIX64) && !defined(EFI32)
 #include <basetsd.h>
 #if (_MSC_VER <= 1200)
 typedef   signed short  int16_t;
@@ -51,9 +54,10 @@ typedef  INT32  int32_t;
 typedef  INT64  int64_t;
 typedef UINT32 uint32_t;
 typedef UINT64 uint64_t;
-#elseif !defined(POLARSSL_LINUX_KERNEL)
+#else
 #include <inttypes.h>
 #endif /* _MSC_VER && !EFIX64 && !EFI32 */
+#endif /* POLARSSL_LINUX_KERNEL */
 
 #define POLARSSL_ERR_MPI_FILE_IO_ERROR                     -0x0002  /**< An error occurred while reading from or writing to a file. */
 #define POLARSSL_ERR_MPI_BAD_INPUT_DATA                    -0x0004  /**< Bad input parameters to function. */
@@ -375,7 +379,6 @@ int mpi_read_string( mpi *X, int radix, const char *s );
 int mpi_write_string( const mpi *X, int radix, char *s, size_t *slen );
 
 #if defined(POLARSSL_FS_IO)
-#if !defined(POLARSSL_LINUX_KERNEL)
 /**
  * \brief          Read X from an opened file
  *
@@ -402,10 +405,6 @@ int mpi_read_file( mpi *X, int radix, FILE *fin );
  * \note           Set fout == NULL to print X on the console.
  */
 int mpi_write_file( const char *p, const mpi *X, int radix, FILE *fout );
-#else 
-int mpi_read_file( mpi *X, int radix, struct file *fin );
-int mpi_write_file( const char *p, const mpi *X, int radix, struct file *fout );
-#endif /* POLARSSL_LINUX_KERNEL */
 #endif /* POLARSSL_FS_IO */
 
 /**
